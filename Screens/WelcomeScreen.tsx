@@ -1,12 +1,10 @@
 import React from 'react';
 import { View, Text, Button, StyleSheet, Image } from 'react-native';
 
-export const HomeScreen = ({ navigation }: { navigation: any  }) => { 
+export const WelcomeScreen = ({ navigation }: any) => {
   return (
     <View style={styles.container}>
-      
-      <Text style={styles.title}>Welcome to the Snake Game!</Text>
-      <Text style={styles.subtitle}>Are you ready to play?</Text>
+      <Text>Bienvenido</Text>
       <Button
         title="Start Game"
         onPress={() => navigation.navigate('Game')} 
@@ -40,5 +38,3 @@ const styles = StyleSheet.create({
     color: '#666',
   },
 });
-
-export default HomeScreen;
