@@ -1,15 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Button } from 'react-native';
+import { View, Text, StyleSheet, Button, Alert } from 'react-native';
+
+const generateFood = () => {
+  return { x: Math.floor(Math.random() * 20), y: Math.floor(Math.random() * 20) };
+};
 
 export const GameScreen = () => {
   const [snake, setSnake] = useState([{ x: 0, y: 0 }]);
   const [direction, setDirection] = useState('RIGHT');
-  const [food, setFood] = useState({ x: Math.floor(Math.random() * 20), y: Math.floor(Math.random() * 20) });
+  const [food, setFood] = useState(generateFood);
+  const [isGameOver, setIsGameOver] = useState(false);
+  const [score, setScore] = useState(0); // Estado para la puntuación
 
   useEffect(() => {
+    if (isGameOver) return;
+
     const interval = setInterval(moveSnake, 200);
     return () => clearInterval(interval);
-  }, [snake, direction]);
+  }, [snake, direction, isGameOver]);
 
   const moveSnake = () => {
     let newSnake = [...snake];
@@ -32,18 +40,49 @@ export const GameScreen = () => {
         break;
     }
 
+    if (head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20) {
+      setIsGameOver(true);
+      Alert.alert('Game Over', 'You hit the wall!');
+      return;
+    }
+
+    if (newSnake.some(segment => segment.x === head.x && segment.y === head.y)) {
+      setIsGameOver(true);
+      Alert.alert('Game Over', 'You hit yourself!');
+      return;
+    }
+
     newSnake.unshift(head);
-    newSnake.pop();
+
+    if (head.x === food.x && head.y === food.y) {
+      setFood(generateFood());
+      setScore(prevScore => prevScore + 1); // Incrementar la puntuación
+    } else {
+      newSnake.pop();
+    }
+
     setSnake(newSnake);
   };
 
-  const changeDirection = (newDirection:any) => {
+  const changeDirection = (newDirection: string) => {
     setDirection(newDirection);
+  };
+
+  const restartGame = () => {
+    setSnake([{ x: 0, y: 0 }]);
+    setDirection('RIGHT');
+    setFood(generateFood());
+    setIsGameOver(false);
+    setScore(0); // Reiniciar la puntuación
   };
 
   return (
     <View style={styles.container}>
       <Text>Snake Game</Text>
+      <View style={styles.scoreContainer}>
+        <Text>Score: </Text>
+        <Text>{score}</Text>
+      </View>
       <View style={styles.board}>
         {snake.map((segment, index) => (
           <View key={index} style={[styles.snake, { left: segment.x * 10, top: segment.y * 10 }]} />
@@ -56,6 +95,7 @@ export const GameScreen = () => {
         <Button title="Left" onPress={() => changeDirection('LEFT')} />
         <Button title="Right" onPress={() => changeDirection('RIGHT')} />
       </View>
+      {isGameOver && <Button title="Restart" onPress={restartGame} />}
     </View>
   );
 };
@@ -65,6 +105,10 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  scoreContainer: {
+    flexDirection: 'row',
+    marginBottom: 10,
   },
   board: {
     width: 200,
@@ -89,4 +133,3 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
 });
-
