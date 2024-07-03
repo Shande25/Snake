@@ -1,10 +1,10 @@
 import React from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
 
-export const HomeScreen = ({ navigation }:any) => {
+export const WelcomeScreen = ({ navigation }: any) => {
   return (
     <View style={styles.container}>
-      <Text>Welcome to the Snake Game!</Text>
+      <Text>Bienvenido</Text>
       <Button
         title="Start Game"
         onPress={() => navigation.navigate('Game')}
@@ -20,5 +20,3 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
-
-export default HomeScreen;
