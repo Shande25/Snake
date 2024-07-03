@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Button, StyleSheet, Image } from 'react-native';
+import { View, Text, Button, StyleSheet } from 'react-native';
 
 export const WelcomeScreen = ({ navigation }: any) => {
   return (
@@ -8,6 +8,12 @@ export const WelcomeScreen = ({ navigation }: any) => {
       <Button
         title="Start Game"
         onPress={() => navigation.navigate('Game')} 
+        color="#841584" // Cambia el color según tus preferencias
+      />
+      <Button
+        title="Ver Puntuación"
+        onPress={() => navigation.navigate('Puntuacion', { score: 0 })} // Aquí puedes pasar el score inicial si es necesario
+        color="#841584" // Cambia el color según tus preferencias
       />
     </View>
   );
@@ -21,20 +27,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
     padding: 20,
   },
-  logo: {
-    width: 100,
-    height: 100,
-    marginBottom: 20,
+  buttonContainer: {
+    marginTop: 20,
+    width: '100%', // Ajusta el ancho según tus necesidades
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#333',
-  },
-  subtitle: {
+  buttonTitle: {
     fontSize: 18,
-    marginBottom: 20,
-    color: '#666',
+    fontWeight: 'bold',
+    color: 'white', // Cambia el color del texto según tus preferencias
   },
 });

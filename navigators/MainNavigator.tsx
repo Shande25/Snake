@@ -5,7 +5,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { LoginScreen } from '../Screens/LoginScreen';
 import { RegisterScreen } from '../Screens/RegisterScreen';
 import { WelcomeScreen } from '../Screens/WelcomeScreen';
-import { GameScreen } from '../Screens/GameScreen';
+import GameScreen from '../Screens/GameScreen';
+import PuntuacionScreen from '../Screens/PuntuacionScreen';
+
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -22,7 +24,8 @@ export const MainNavigator = () => (
     <Stack.Navigator>
       <Stack.Screen name="Auth" component={AuthStack} options={{ headerShown: false }} />
       <Stack.Screen name="WelcomeScreen" component={WelcomeScreen} />
-      <Stack.Screen name="Game" component={GameScreen} /> 
+      <Stack.Screen name="Game" component={GameScreen} />
+      <Stack.Screen name="Puntuacion" component={PuntuacionScreen} />
     </Stack.Navigator>
   </NavigationContainer>
 );
