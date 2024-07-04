@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { getDatabase, ref, set } from 'firebase/database';
+import { db } from '../Config/Config';
 
 const generateFood = () => {
   return { x: Math.floor(Math.random() * 20), y: Math.floor(Math.random() * 20) };
@@ -17,6 +19,7 @@ export const GameScreen: React.FC = () => {
 
   useEffect(() => {
     if (isGameOver) {
+      saveScoreToDatabase(score); // Almacena el puntaje cuando el juego termina
       console.log('Navigating to Puntuacion screen with score:', score);
       navigation.navigate('Puntuacion', { score: score });
     }
@@ -91,6 +94,22 @@ export const GameScreen: React.FC = () => {
     setFood(generateFood());
     setIsGameOver(false);
     setScore(0);
+
+    // Reinicia el puntaje en la base de datos
+    saveScoreToDatabase(0);
+  };
+
+  const saveScoreToDatabase = (score: number) => {
+    const dbRef = ref(db, `scores/`);
+    set(dbRef, {
+      score: score,
+    })
+      .then(() => {
+        console.log('Score saved successfully:', score);
+      })
+      .catch((error) => {
+        console.error('Error saving score:', error);
+      });
   };
 
   return (
@@ -185,4 +204,3 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-
