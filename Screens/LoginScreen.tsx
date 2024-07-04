@@ -1,55 +1,61 @@
-import React, { useState } from "react";
-import {View,Text,TextInput,TouchableOpacity,StyleSheet,ImageBackground,} from "react-native";
-import Icon from "react-native-vector-icons/MaterialIcons";
+import React, { useEffect, useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, Image } from 'react-native';
+
+const backgroundImage = { uri: 'https://e1.pxfuel.com/desktop-wallpaper/510/297/desktop-wallpaper-snake-art.jpg' }; 
+const companyImage = { uri: 'https://i.blogs.es/5c2b53/snake/1366_2000.jpg' };
+const gifImage = { uri: 'https://i.pinimg.com/originals/e5/93/ab/e593ab0589d5f1b389e4dfbcce2bce20.gif' };
 
 export const LoginScreen = ({ navigation }: any) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [titleColor, setTitleColor] = useState('#36BA98');
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTitleColor((prevColor) => (prevColor === '#36BA98' ? 'white' : '#36BA98'));
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
 
   const goToRegister = () => {
-    navigation.navigate("Register");
+    navigation.navigate('Register'); 
   };
 
   const handleLogin = () => {
-    navigation.navigate("WelcomeScreen");
+    navigation.navigate('WelcomeScreen'); 
   };
 
   return (
-    <ImageBackground
-      source={{ uri: "https://example.com/background-image.jpg" }}
-      style={styles.background}
-    >
+    <ImageBackground source={backgroundImage} style={styles.background}>
       <View style={styles.container}>
-        <Text style={styles.title}>Iniciar Sesión</Text>
-        <View style={styles.inputContainer}>
-          <Icon name="email" size={20} color="#666" style={styles.icon} />
-          <TextInput
-            style={styles.input}
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            placeholder="Email"
-            placeholderTextColor="#666"
-          />
+        <View style={styles.companyContainer}>
+          <Image source={companyImage} style={styles.companyImage} />
         </View>
-        <View style={styles.inputContainer}>
-          <Icon name="lock" size={20} color="#666" style={styles.icon} />
-          <TextInput
-            style={styles.input}
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            placeholder="Contraseña"
-            placeholderTextColor="#666"
-          />
-        </View>
+        <Text style={[styles.title, { color: titleColor }]}>Iniciar Sesión</Text>
+        <Text style={styles.label}>Email:</Text>
+        <TextInput
+          style={styles.input}
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
+        <Text style={styles.label}>Contraseña:</Text>
+        <TextInput
+          style={styles.input}
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+        />
         <TouchableOpacity style={styles.button} onPress={handleLogin}>
           <Text style={styles.buttonText}>Iniciar sesión</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.secondaryButton} onPress={goToRegister}>
-          <Text style={styles.secondaryButtonText}>Registrarse</Text>
+        <TouchableOpacity style={styles.button} onPress={goToRegister}>
+          <Text style={styles.buttonText}>Registrarse</Text>
         </TouchableOpacity>
+        <View style={styles.gifContainer}>
+          <Image source={gifImage} style={styles.gif} />
+        </View>
       </View>
     </ImageBackground>
   );
@@ -58,70 +64,76 @@ export const LoginScreen = ({ navigation }: any) => {
 const styles = StyleSheet.create({
   background: {
     flex: 1,
-    justifyContent: "center",
+    resizeMode: 'cover',
+    justifyContent: 'center',
   },
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)", // Fondo semi-transparente para mejor legibilidad
-    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+  },
+  companyContainer: {
+    position: 'absolute',
+    top: 20,
+    left: 20, 
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1,
+  },
+  companyImage: {
+    width: 90,
+    height: 90,
+    resizeMode: 'contain',
+    borderRadius: 45,
   },
   title: {
     fontSize: 30,
-    fontWeight: "bold",
-    marginBottom: 50,
-    color: "#fff",
-    textAlign: "center", // Alinear texto al centro
+    fontWeight: 'bold',
+    marginBottom: 20, 
+    textAlign: 'center',
   },
-  inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 20,
-    width: "100%",
-    borderColor: "#666",
-    borderBottomWidth: 1,
-  },
-  icon: {
-    marginRight: 10,
+  label: {
+    color: 'white',
+    marginBottom: 5,
   },
   input: {
-    flex: 1,
+    width: '100%',
     height: 40,
-    color: "#fff",
+    borderColor: '#ccc',
+    borderWidth: 1,
+    marginBottom: 10,
+    paddingHorizontal: 10,
+    backgroundColor: 'white', // Fondo blanco para los inputs
+    borderRadius: 5,
   },
   button: {
-    backgroundColor: "#4CAF50",
-    paddingVertical: 15,
-    paddingHorizontal: 40,
-    borderRadius: 25,
-    marginTop: 20,
-    width: "80%",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+    backgroundColor: '#36BA98',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+    marginBottom: 10,
+    width: '100%', // Botones ocupan todo el ancho disponible
   },
   buttonText: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "white",
-    textAlign: "center", // Alinear texto al centro
-  },
-  secondaryButton: {
-    marginTop: 20,
-  },
-  secondaryButtonText: {
-    color: "#fff",
+    color: 'white',
     fontSize: 16,
-    fontWeight: "bold",
-    textAlign: "center", // Alinear texto al centro
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
+  gifContainer: {
+    position: 'absolute',
+    bottom: 20, 
+    width: '100%', 
+    alignItems: 'center', 
+  },
+  gif: {
+    width: 100,
+    height: 100,
+    resizeMode: 'contain',
   },
 });
-
-

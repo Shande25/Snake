@@ -2,13 +2,12 @@ import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-
 import { RegisterScreen } from "../Screens/RegisterScreen";
 import { WelcomeScreen } from "../Screens/WelcomeScreen";
-import { GameScreen } from "../Screens/GameScreen";
-import { PuntuacionScreen } from "../Screens/PuntuacionScreen";
 import { LoginScreen } from "../Screens/LoginScreen";
 
+import { GameScreen } from "../Screens/GameScreen";
+import { PuntuacionScreen } from "../Screens/PuntuacionScreen";
 
 export type RootStackParamList = {
   Auth: undefined;
@@ -27,7 +26,7 @@ const AuthStack = () => (
   </Tab.Navigator>
 );
 
- export const MainNavigator = () => (
+export const MainNavigator = () => (
   <NavigationContainer>
     <Stack.Navigator>
       <Stack.Screen
