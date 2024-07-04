@@ -6,7 +6,7 @@ const generateFood = () => {
   return { x: Math.floor(Math.random() * 20), y: Math.floor(Math.random() * 20) };
 };
 
-const GameScreen = () => {
+export const GameScreen = () => {
   const navigation = useNavigation();
   const [snake, setSnake] = useState([{ x: 0, y: 0 }]);
   const [direction, setDirection] = useState('RIGHT');
@@ -141,5 +141,3 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
 });
-
-export default GameScreen;
