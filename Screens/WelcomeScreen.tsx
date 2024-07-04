@@ -10,7 +10,7 @@ import {
 export const WelcomeScreen = ({ navigation }: any) => {
   return (
     <ImageBackground
-      source={{ uri: "https://www.example.com/your-background-image.jpg" }}
+      source={{ uri: "https://e1.pxfuel.com/desktop-wallpaper/510/297/desktop-wallpaper-snake-art.jpg" }}
       style={styles.background}
     >
       <View style={styles.container}>
