@@ -3,19 +3,19 @@ import { getAuth } from 'firebase/auth';
 import { getDatabase } from 'firebase/database';
 import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 const firebaseConfig = {
-  apiKey: 'YOUR_API_KEY',
-  authDomain: 'YOUR_AUTH_DOMAIN',
-  projectId: 'YOUR_PROJECT_ID',
-  storageBucket: 'YOUR_STORAGE_BUCKET',
-  messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-  appId: 'YOUR_APP_ID',
-  measurementId: 'YOUR_MEASUREMENT_ID'
+  apiKey: "AIzaSyCw5wb7WeIbRnELHXO8JKpB2hYkDhoCUUA",
+  authDomain: "snakeii.firebaseapp.com",
+  databaseURL: "https://snakeii-default-rtdb.firebaseio.com",
+  projectId: "snakeii",
+  storageBucket: "snakeii.appspot.com",
+  messagingSenderId: "230765432813",
+  appId: "1:230765432813:web:427c3fc99ce11d5a5fa1e4"
 };
 
 const app = initializeApp(firebaseConfig);
 //export const auth = getAuth(app);
-export const db = getDatabase(app);
-export const auth = initializeAuth(app, {
-  persistence: getReactNativePersistence(ReactNativeAsyncStorage)
-});
+ const db = getDatabase(app);
+ const auth = initializeAuth(app);
+ export{db,auth}

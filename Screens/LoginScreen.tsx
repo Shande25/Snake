@@ -1,56 +1,64 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, Image } from 'react-native';
-import { auth } from '../Config/Config';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../Config/Config';
 
-const backgroundImage = { uri: 'https://e1.pxfuel.com/desktop-wallpaper/510/297/desktop-wallpaper-snake-art.jpg' }; 
+const backgroundImage = { uri: 'https://e1.pxfuel.com/desktop-wallpaper/510/297/desktop-wallpaper-snake-art.jpg' };
 const companyImage = { uri: 'https://i.blogs.es/5c2b53/snake/1366_2000.jpg' };
 
 export const LoginScreen = ({ navigation }: any) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [titleColor, setTitleColor] = useState('#36BA98');
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTitleColor((prevColor) => (prevColor === '#36BA98' ? 'white' : '#36BA98'));
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
-
+  // Función para manejar el inicio de sesión
   const handleLogin = () => {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        navigation.navigate('WelcomeScreen');
+        navigation.navigate('Welcome');
       })
       .catch((error) => {
         setError(error.message);
       });
   };
 
+  // Función para limpiar los campos de correo y contraseña
+  const clearFields = () => {
+    setEmail('');
+    setPassword('');
+  };
+
+  // Se ejecuta al enfocar nuevamente la pantalla
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      clearFields();
+    });
+
+    return unsubscribe;
+  }, [navigation]);
+
   return (
     <ImageBackground source={backgroundImage} style={styles.background}>
       <View style={styles.container}>
-        <View style={styles.companyContainer}>
-          <Image source={companyImage} style={styles.companyImage} />
-        </View>
-        <Text style={[styles.title, { color: titleColor }]}>Iniciar Sesión</Text>
+        <Image source={companyImage} style={styles.companyImage} />
+        <Text style={styles.title}>Iniciar Sesión</Text>
         {error ? <Text style={styles.error}>{error}</Text> : null}
-        <Text style={styles.label}>Email:</Text>
         <TextInput
           style={styles.input}
           value={email}
           onChangeText={setEmail}
+          placeholder="Email"
           keyboardType="email-address"
           autoCapitalize="none"
+          placeholderTextColor="#ccc"
         />
-        <Text style={styles.label}>Contraseña:</Text>
         <TextInput
           style={styles.input}
           value={password}
           onChangeText={setPassword}
+          placeholder="Contraseña"
           secureTextEntry
+          placeholderTextColor="#ccc"
         />
         <TouchableOpacity style={styles.button} onPress={handleLogin}>
           <Text style={styles.buttonText}>Ingresar</Text>
@@ -62,11 +70,10 @@ export const LoginScreen = ({ navigation }: any) => {
     </ImageBackground>
   );
 };
-
 const styles = StyleSheet.create({
   background: {
     flex: 1,
-    resizeMode: 'cover', // or 'stretch'
+    resizeMode: 'cover',
     justifyContent: 'center',
   },
   container: {
@@ -75,34 +82,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
   },
-  companyContainer: {
-    marginBottom: 30,
-  },
   companyImage: {
     width: 100,
     height: 100,
     resizeMode: 'contain',
+    marginBottom: 30,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
+    color: '#fff',
   },
   error: {
     color: 'red',
     marginBottom: 10,
   },
-  label: {
-    fontSize: 18,
-    marginBottom: 10,
-  },
   input: {
     width: '100%',
     height: 40,
-    borderColor: 'gray',
+    borderColor: '#ccc',
     borderWidth: 1,
     marginBottom: 20,
     paddingHorizontal: 10,
+    color: '#fff',
   },
   button: {
     backgroundColor: '#007bff',

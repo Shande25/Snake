@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)", // Fondo semi-transparente para mejor legibilidad
+    backgroundColor: "rgba(0, 0, 0, 0.5)", 
     padding: 20,
   },
   title: {
@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 50,
     color: "#fff",
-    textAlign: "center", // Alinear texto al centro
+    textAlign: "center", 
   },
   button: {
     backgroundColor: "#4CAF50",
@@ -72,11 +72,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     color: "white",
-    textAlign: "center", // Alinear texto al centro
+    textAlign: "center", 
   },
   secondaryButtonText: {
     color: "#fff",
-    textAlign: "center", // Alinear texto al centro
+    textAlign: "center", 
   },
 });
 

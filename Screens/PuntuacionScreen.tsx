@@ -7,9 +7,7 @@ import { db } from '../Config/Config';
 type RootStackParamList = {
   Puntuacion: { score: number };
 };
-
 type PuntuacionScreenRouteProp = RouteProp<RootStackParamList, 'Puntuacion'>;
-
 type Score = {
   username: string;
   score: number;
@@ -33,8 +31,8 @@ export const PuntuacionScreen: React.FC = () => {
         const { username, score } = childSnapshot.val();
         scores.push({ username, score });
       });
-      scores.sort((a, b) => b.score - a.score); // Ordena los puntajes de mayor a menor
-      setHighScores(scores.slice(0, 3)); // Obtén solo las 3 mejores puntuaciones
+      scores.sort((a, b) => b.score - a.score); 
+      setHighScores(scores.slice(0, 3)); 
     });
   };
 
@@ -49,8 +47,8 @@ export const PuntuacionScreen: React.FC = () => {
       username: username,
       score: currentScore
     }).then(() => {
-      setUsername(""); // Limpia el campo de nombre de usuario después de guardar
-      fetchHighScores(); // Actualiza la lista de puntuaciones después de guardar
+      setUsername(""); 
+      fetchHighScores(); 
       alert("Puntuación guardada exitosamente.");
     }).catch((error) => {
       console.error("Error al guardar la puntuación: ", error);

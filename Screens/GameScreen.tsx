@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { ref, set } from 'firebase/database';
 import { db, auth } from '../Config/Config';
-import { RootStackParamList } from '../Screens/types';
+import { RootStackParamList } from '../components/Types';
 
 const generateFood = () => {
   return { x: Math.floor(Math.random() * 20), y: Math.floor(Math.random() * 20) };
