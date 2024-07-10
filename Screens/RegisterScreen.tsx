@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ImageBackground, Image } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { getDatabase, ref, set } from 'firebase/database';
 import { auth } from '../Config/Config'; // Asegúrate de importar auth correctamente desde tu configuración
@@ -8,11 +9,19 @@ const backgroundImage = { uri: 'https://e1.pxfuel.com/desktop-wallpaper/510/297/
 const companyImage = { uri: 'https://i.blogs.es/5c2b53/snake/1366_2000.jpg' };
 const gifImage = { uri: 'https://i.gifer.com/4Snj.gif' };
 
-export const RegisterScreen = ({ navigation }:any) => {
+export const RegisterScreen = ({ navigation }: any) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
   const [titleColor, setTitleColor] = useState('#36BA98');
+
+  useEffect(() => {
+    const colorInterval = setInterval(() => {
+      setTitleColor(prevColor => prevColor === '#36BA98' ? '#FFFFFF' : '#36BA98');
+    }, 3000);
+
+    return () => clearInterval(colorInterval);
+  }, []);
 
   const goToLogin = () => {
     navigation.navigate('Login');
@@ -41,48 +50,50 @@ export const RegisterScreen = ({ navigation }:any) => {
 
   return (
     <ImageBackground source={backgroundImage} style={styles.background}>
-      <View style={styles.container}>
+      <KeyboardAwareScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.companyContainer}>
           <Image source={companyImage} style={styles.companyImage} />
         </View>
-        <Text style={[styles.title, { color: titleColor }]}>Registro</Text>
-        <Text style={styles.label}>Nombre de usuario:</Text>
-        <TextInput
-          style={styles.input}
-          value={username}
-          onChangeText={(text) => setUsername(text)}
-          placeholder="Introduce tu nombre de usuario"
-          placeholderTextColor="rgba(255, 255, 255, 0.7)"
-        />
-        <Text style={styles.label}>Email:</Text>
-        <TextInput
-          style={styles.input}
-          value={email}
-          onChangeText={(text) => setEmail(text)}
-          keyboardType="email-address"
-          autoCapitalize="none"
-          placeholder="Introduce tu email"
-          placeholderTextColor="rgba(255, 255, 255, 0.7)"
-        />
-        <Text style={styles.label}>Contraseña:</Text>
-        <TextInput
-          style={styles.input}
-          value={password}
-          onChangeText={(text) => setPassword(text)}
-          secureTextEntry
-          placeholder="Introduce tu contraseña"
-          placeholderTextColor="rgba(255, 255, 255, 0.7)"
-        />
-        <TouchableOpacity style={styles.button} onPress={handleRegistration}>
-          <Text style={styles.buttonText}>Registrarse</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.secondaryButton} onPress={goToLogin}>
-          <Text style={styles.secondaryButtonText}>Ya tengo cuenta. Iniciar sesión</Text>
-        </TouchableOpacity>
-        <View style={styles.gifContainer}>
-          <Image source={gifImage} style={styles.gif} />
+        <View style={styles.container}>
+          <Text style={[styles.title, { color: titleColor }]}>Registro</Text>
+          <Text style={styles.label}>Nombre de usuario:</Text>
+          <TextInput
+            style={styles.input}
+            value={username}
+            onChangeText={(text) => setUsername(text)}
+            placeholder="Introduce tu nombre de usuario"
+            placeholderTextColor="rgba(255, 255, 255, 0.7)"
+          />
+          <Text style={styles.label}>Email:</Text>
+          <TextInput
+            style={styles.input}
+            value={email}
+            onChangeText={(text) => setEmail(text)}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            placeholder="Introduce tu email"
+            placeholderTextColor="rgba(255, 255, 255, 0.7)"
+          />
+          <Text style={styles.label}>Contraseña:</Text>
+          <TextInput
+            style={styles.input}
+            value={password}
+            onChangeText={(text) => setPassword(text)}
+            secureTextEntry
+            placeholder="Introduce tu contraseña"
+            placeholderTextColor="rgba(255, 255, 255, 0.7)"
+          />
+          <TouchableOpacity style={styles.button} onPress={handleRegistration}>
+            <Text style={styles.buttonText}>Registrarse</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.secondaryButton} onPress={goToLogin}>
+            <Text style={styles.secondaryButtonText}>Ya tengo cuenta. Iniciar sesión</Text>
+          </TouchableOpacity>
+          <View style={styles.gifContainer}>
+            <Image source={gifImage} style={styles.gif} />
+          </View>
         </View>
-      </View>
+      </KeyboardAwareScrollView>
     </ImageBackground>
   );
 };
@@ -91,17 +102,20 @@ const styles = StyleSheet.create({
   background: {
     flex: 1,
     resizeMode: 'cover',
+  },
+  scrollContainer: {
+    flexGrow: 1,
     justifyContent: 'center',
   },
   container: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
     paddingHorizontal: 20,
+    marginTop: 120, 
   },
   companyContainer: {
     position: 'absolute',
-    top: 20,
+    top: 20, 
     left: 20,
     width: 100,
     height: 100,
@@ -109,7 +123,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.8)',
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 1,
   },
   companyImage: {
     width: 90,
@@ -139,10 +152,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     borderRadius: 5,
     color: '#fff',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)', // Fondo semi-transparente
+    backgroundColor: 'rgba(255, 255, 255, 0.1)', 
   },
   button: {
-    backgroundColor: '#007BFF',
+    backgroundColor: '#36BA98',
     paddingVertical: 15,
     paddingHorizontal: 30,
     borderRadius: 5,
@@ -159,14 +172,12 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   secondaryButtonText: {
-    color: '#007BFF',
+    color: '#36BA98',
     fontSize: 16,
     fontWeight: 'bold',
   },
   gifContainer: {
-    position: 'absolute',
-    bottom: 20,
-    width: '100%',
+    marginTop: 20,
     alignItems: 'center',
   },
   gif: {
@@ -175,3 +186,5 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
 });
+
+export default RegisterScreen;

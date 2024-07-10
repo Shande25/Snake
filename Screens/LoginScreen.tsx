@@ -1,17 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ImageBackground, Image } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../Config/Config';
 
 const backgroundImage = { uri: 'https://e1.pxfuel.com/desktop-wallpaper/510/297/desktop-wallpaper-snake-art.jpg' };
 const companyImage = { uri: 'https://i.blogs.es/5c2b53/snake/1366_2000.jpg' };
+const gifImage = { uri: 'https://i.pinimg.com/originals/e5/93/ab/e593ab0589d5f1b389e4dfbcce2bce20.gif' };
 
 export const LoginScreen = ({ navigation }: any) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [titleColor, setTitleColor] = useState('#36BA98'); // Starting with the original green color
 
-  // Función para manejar el inicio de sesión
   const handleLogin = () => {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
@@ -22,13 +24,11 @@ export const LoginScreen = ({ navigation }: any) => {
       });
   };
 
-  // Función para limpiar los campos de correo y contraseña
   const clearFields = () => {
     setEmail('');
     setPassword('');
   };
 
-  // Se ejecuta al enfocar nuevamente la pantalla
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       clearFields();
@@ -37,36 +37,48 @@ export const LoginScreen = ({ navigation }: any) => {
     return unsubscribe;
   }, [navigation]);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTitleColor((prevColor) => (prevColor === '#36BA98' ? 'white' : '#36BA98'));
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <ImageBackground source={backgroundImage} style={styles.background}>
-      <View style={styles.container}>
-        <Image source={companyImage} style={styles.companyImage} />
-        <Text style={styles.title}>Iniciar Sesión</Text>
-        {error ? <Text style={styles.error}>{error}</Text> : null}
-        <TextInput
-          style={styles.input}
-          value={email}
-          onChangeText={setEmail}
-          placeholder="Email"
-          keyboardType="email-address"
-          autoCapitalize="none"
-          placeholderTextColor="#ccc"
-        />
-        <TextInput
-          style={styles.input}
-          value={password}
-          onChangeText={setPassword}
-          placeholder="Contraseña"
-          secureTextEntry
-          placeholderTextColor="#ccc"
-        />
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}>Ingresar</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.button, styles.registerButton]} onPress={() => navigation.navigate('Register')}>
-          <Text style={styles.buttonText}>Registrarse</Text>
-        </TouchableOpacity>
-      </View>
+      <KeyboardAwareScrollView contentContainerStyle={styles.scrollContainer}>
+        <View style={styles.container}>
+          <Image source={companyImage} style={styles.companyImage} />
+          <Text style={[styles.title, { color: titleColor }]}>Iniciar Sesión</Text>
+          {error ? <Text style={styles.error}>{error}</Text> : null}
+          <TextInput
+            style={styles.input}
+            value={email}
+            onChangeText={setEmail}
+            placeholder="Email"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            placeholderTextColor="#ccc"
+          />
+          <TextInput
+            style={styles.input}
+            value={password}
+            onChangeText={setPassword}
+            placeholder="Contraseña"
+            secureTextEntry
+            placeholderTextColor="#ccc"
+          />
+          <TouchableOpacity style={styles.button} onPress={handleLogin}>
+            <Text style={styles.buttonText}>Ingresar</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Register')}>
+            <Text style={styles.buttonText}>Registrarse</Text>
+          </TouchableOpacity>
+          <View style={styles.gifContainer}>
+            <Image source={gifImage} style={styles.gif} />
+          </View>
+        </View>
+      </KeyboardAwareScrollView>
     </ImageBackground>
   );
 };
@@ -75,6 +87,9 @@ const styles = StyleSheet.create({
   background: {
     flex: 1,
     resizeMode: 'cover',
+  },
+  scrollContainer: {
+    flexGrow: 1,
     justifyContent: 'center',
   },
   container: {
@@ -82,6 +97,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+    paddingBottom: 120, // Adjust as needed
   },
   companyImage: {
     width: 100,
@@ -107,10 +123,10 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     paddingHorizontal: 10,
     color: '#fff',
-    borderRadius: 5, // Añadir borde redondeado a los inputs
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
   },
   button: {
-    backgroundColor: '#007bff',
+    backgroundColor: '#36BA98',
     width: '100%',
     padding: 10,
     alignItems: 'center',
@@ -120,11 +136,18 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontSize: 18,
-    fontWeight: 'bold', // Añadir negrita al texto de los botones
   },
-  registerButton: {
-    backgroundColor: '#28a745', // Diferente color para el botón de registro
+  gifContainer: {
+    position: 'absolute',
+    bottom: 10,
+    width: '100%',
+    alignItems: 'center',
+  },
+  gif: {
+    width: 100,
+    height: 100,
+    resizeMode: 'contain',
   },
 });
 
-
+export default LoginScreen;

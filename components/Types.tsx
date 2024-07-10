@@ -1,4 +1,4 @@
-// components/Types.ts
+
 export type RootStackParamList = {
   Login: undefined;
   Welcome: undefined;
@@ -6,4 +6,5 @@ export type RootStackParamList = {
   Game: undefined;
   Puntuacion: undefined;
   Profile: undefined;
+  Camara : undefined;
 };

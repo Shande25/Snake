@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ImageBackground, Image, FlatList, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ImageBackground, Image, FlatList, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
-import { getDatabase, ref, onValue, push, set } from 'firebase/database';
+import { getDatabase, ref, onValue, push, set, update } from 'firebase/database';
 import { db } from '../Config/Config';
 
 type RootStackParamList = {
@@ -31,8 +31,8 @@ export const PuntuacionScreen: React.FC = () => {
         const { username, score } = childSnapshot.val();
         scores.push({ username, score });
       });
-      scores.sort((a, b) => b.score - a.score); 
-      setHighScores(scores.slice(0, 3)); 
+      scores.sort((a, b) => b.score - a.score);
+      setHighScores(scores.slice(0, 3));
     });
   };
 
@@ -43,17 +43,33 @@ export const PuntuacionScreen: React.FC = () => {
     }
 
     const dbRef = ref(db, 'scores/');
-    push(dbRef, {
-      username: username,
-      score: currentScore
-    }).then(() => {
-      setUsername(""); 
-      fetchHighScores(); 
-      alert("Puntuación guardada exitosamente.");
-    }).catch((error) => {
-      console.error("Error al guardar la puntuación: ", error);
-      alert("Ocurrió un error al guardar la puntuación.");
-    });
+    const existingScore = highScores.find(score => score.username === username);
+
+    if (existingScore) {
+      // Update existing score if the user already exists
+      update(ref(db, `scores/${existingScore.username}`), {
+        score: currentScore
+      }).then(() => {
+        fetchHighScores();
+        Alert.alert("Puntuación actualizada", "Tu puntaje ha sido actualizado exitosamente.");
+      }).catch((error) => {
+        console.error("Error al actualizar la puntuación: ", error);
+        Alert.alert("Error", "Ocurrió un error al actualizar la puntuación.");
+      });
+    } else {
+      // Save new score if user does not exist
+      push(dbRef, {
+        username: username,
+        score: currentScore
+      }).then(() => {
+        setUsername("");
+        fetchHighScores();
+        Alert.alert("Puntuación guardada", "Tu puntaje ha sido guardado exitosamente.");
+      }).catch((error) => {
+        console.error("Error al guardar la puntuación: ", error);
+        Alert.alert("Error", "Ocurrió un error al guardar la puntuación.");
+      });
+    }
   };
 
   return (
@@ -178,4 +194,4 @@ const styles = StyleSheet.create({
   },
 });
 
-
+export default PuntuacionScreen;

@@ -4,11 +4,12 @@ import { NavigationContainer } from '@react-navigation/native';
 
 import WelcomeScreen from '../Screens/WelcomeScreen';
 import ProfileScreen from '../Screens/ProfileScreen';
-import { RootStackParamList } from '../components/Types'; // Asegúrate de ajustar la ruta según la ubicación del archivo
+import { RootStackParamList } from '../components/Types';
 import { PuntuacionScreen } from '../Screens/PuntuacionScreen';
 import { RegisterScreen } from '../Screens/RegisterScreen';
 import { GameScreen } from '../Screens/GameScreen';
 import { LoginScreen } from '../Screens/LoginScreen';
+import CamaraScreen from '../Screens/CamaraScreen';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -21,7 +22,8 @@ const MainNavigator = () => {
         <Stack.Screen name="Register" component={RegisterScreen} />
         <Stack.Screen name="Game" component={GameScreen} />
         <Stack.Screen name="Puntuacion" component={PuntuacionScreen} />
-        <Stack.Screen name="Profile" component={ProfileScreen} /> 
+        <Stack.Screen name="Profile" component={ProfileScreen} />
+        <Stack.Screen name="Camara" component={CamaraScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

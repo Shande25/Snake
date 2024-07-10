@@ -1,13 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { ref, set } from 'firebase/database';
 import { db, auth } from '../Config/Config';
 import { RootStackParamList } from '../components/Types';
 import { GestureHandlerRootView, PanGestureHandler, PanGestureHandlerGestureEvent } from 'react-native-gesture-handler';
 
-const generateFood = () => {
-  return { x: Math.floor(Math.random() * 20), y: Math.floor(Math.random() * 20) };
+const generateFood = (snake: { x: number; y: number }[]) => {
+  let foodX = Math.floor(Math.random() * 20);
+  let foodY = Math.floor(Math.random() * 20);
+
+  // Ensure the food is generated within the white cells
+  while (snake.some(segment => segment.x === foodX && segment.y === foodY)) {
+    foodX = Math.floor(Math.random() * 20);
+    foodY = Math.floor(Math.random() * 20);
+  }
+
+  return { x: foodX, y: foodY };
 };
 
 type GameScreenNavigationProp = NavigationProp<RootStackParamList, 'Game'>;
@@ -16,7 +25,7 @@ export const GameScreen: React.FC = () => {
   const navigation = useNavigation<GameScreenNavigationProp>();
   const [snake, setSnake] = useState([{ x: 0, y: 0 }]);
   const [direction, setDirection] = useState('RIGHT');
-  const [food, setFood] = useState(generateFood());
+  const [food, setFood] = useState(generateFood(snake));
   const [isGameOver, setIsGameOver] = useState(false);
   const [score, setScore] = useState(0);
   const [titleColor, setTitleColor] = useState('#36BA98');
@@ -78,7 +87,7 @@ export const GameScreen: React.FC = () => {
     newSnake.unshift(head);
 
     if (head.x === food.x && head.y === food.y) {
-      setFood(generateFood());
+      setFood(generateFood(newSnake));
       setScore(score + 1);
     } else {
       newSnake.pop();
@@ -116,6 +125,14 @@ export const GameScreen: React.FC = () => {
     }
   };
 
+  const restartGame = () => {
+    setSnake([{ x: 0, y: 0 }]);
+    setDirection('RIGHT');
+    setFood(generateFood([{ x: 0, y: 0 }]));
+    setIsGameOver(false);
+    setScore(0);
+  };
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <PanGestureHandler onGestureEvent={handlePanGesture}>
@@ -123,9 +140,14 @@ export const GameScreen: React.FC = () => {
           <Text style={[styles.title, { color: titleColor }]}>Snake Game</Text>
           <Text style={styles.score}>Score: {score}</Text>
           {isGameOver ? (
-            <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Puntuacion', { score })}>
-              <Text style={styles.buttonText}>Ver Puntuación</Text>
-            </TouchableOpacity>
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Puntuacion', { score })}>
+                <Text style={styles.buttonText}>Ver Puntuación</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.button} onPress={restartGame}>
+                <Text style={styles.buttonText}>Volver a Jugar</Text>
+              </TouchableOpacity>
+            </View>
           ) : (
             <View style={styles.grid}>
               {Array.from({ length: 20 }).map((_, row) => (
@@ -152,6 +174,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'black',
   },
   title: {
     fontSize: 32,
@@ -160,6 +183,7 @@ const styles = StyleSheet.create({
   score: {
     fontSize: 24,
     marginVertical: 20,
+    color: 'white',
   },
   grid: {
     flexDirection: 'column',
@@ -172,6 +196,7 @@ const styles = StyleSheet.create({
     height: 20,
     borderWidth: 1,
     borderColor: '#ddd',
+    backgroundColor: 'white',
   },
   snake: {
     backgroundColor: 'green',
@@ -179,12 +204,21 @@ const styles = StyleSheet.create({
   food: {
     backgroundColor: 'red',
   },
+  buttonContainer: {
+    marginTop: 20,
+  },
   button: {
     padding: 10,
-    backgroundColor: 'blue',
-    marginTop: 20,
+    backgroundColor: '#36BA98',
+    marginTop: 10,
+    width: 200,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 10,
   },
   buttonText: {
     color: 'white',
   },
 });
+
+export default GameScreen;
