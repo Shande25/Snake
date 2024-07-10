@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  ImageBackground,
-} from "react-native";
+import { View,Text,TouchableOpacity, StyleSheet, ImageBackground,} from "react-native";
 
 export const WelcomeScreen = ({ navigation }: any) => {
   return (

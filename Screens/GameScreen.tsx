@@ -1,15 +1,19 @@
+// GameScreen.tsx
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { getDatabase, ref, set } from 'firebase/database';
-import { db } from '../Config/Config';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { ref, set } from 'firebase/database';
+import { db, auth } from '../Config/Config';
+import { RootStackParamList } from '../Screens/types';
 
 const generateFood = () => {
   return { x: Math.floor(Math.random() * 20), y: Math.floor(Math.random() * 20) };
 };
 
+type GameScreenNavigationProp = NavigationProp<RootStackParamList, 'Game'>;
+
 export const GameScreen: React.FC = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<GameScreenNavigationProp>();
   const [snake, setSnake] = useState([{ x: 0, y: 0 }]);
   const [direction, setDirection] = useState('RIGHT');
   const [food, setFood] = useState(generateFood());
@@ -19,9 +23,8 @@ export const GameScreen: React.FC = () => {
 
   useEffect(() => {
     if (isGameOver) {
-      saveScoreToDatabase(score); // Almacena el puntaje cuando el juego termina
-      console.log('Navigating to Puntuacion screen with score:', score);
-      navigation.navigate('Puntuacion', { score: score });
+      saveScoreToDatabase(score);
+      navigation.navigate('Puntuacion', { score });
     }
   }, [isGameOver, score, navigation]);
 
@@ -62,21 +65,21 @@ export const GameScreen: React.FC = () => {
 
     if (head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20) {
       setIsGameOver(true);
-      Alert.alert('Game Over', 'You hit the wall!');
       return;
     }
 
-    if (newSnake.some(segment => segment.x === head.x && segment.y === head.y)) {
-      setIsGameOver(true);
-      Alert.alert('Game Over', 'You hit yourself!');
-      return;
+    for (let i = 0; i < newSnake.length; i++) {
+      if (newSnake[i].x === head.x && newSnake[i].y === head.y) {
+        setIsGameOver(true);
+        return;
+      }
     }
 
     newSnake.unshift(head);
 
     if (head.x === food.x && head.y === food.y) {
       setFood(generateFood());
-      setScore(prevScore => prevScore + 1);
+      setScore(score + 1);
     } else {
       newSnake.pop();
     }
@@ -84,65 +87,40 @@ export const GameScreen: React.FC = () => {
     setSnake(newSnake);
   };
 
-  const changeDirection = (newDirection: any) => {
-    setDirection(newDirection);
-  };
-
-  const restartGame = () => {
-    setSnake([{ x: 0, y: 0 }]);
-    setDirection('RIGHT');
-    setFood(generateFood());
-    setIsGameOver(false);
-    setScore(0);
-
-    // Reinicia el puntaje en la base de datos
-    saveScoreToDatabase(0);
-  };
-
   const saveScoreToDatabase = (score: number) => {
-    const dbRef = ref(db, `scores/`);
-    set(dbRef, {
-      score: score,
-    })
-      .then(() => {
-        console.log('Score saved successfully:', score);
-      })
-      .catch((error) => {
-        console.error('Error saving score:', error);
+    const user = auth.currentUser;
+    if (user) {
+      const userId = user.uid;
+      const scoreRef = ref(db, `scores/${userId}`);
+      set(scoreRef, {
+        score: score,
+        date: new Date().toISOString(),
       });
+    }
   };
 
   return (
     <View style={styles.container}>
       <Text style={[styles.title, { color: titleColor }]}>Snake Game</Text>
-      <View style={styles.scoreContainer}>
-        <Text style={styles.scoreText}>Score: </Text>
-        <Text style={styles.scoreText}>{score}</Text>
-      </View>
-      <View style={styles.board}>
-        {snake.map((segment, index) => (
-          <View key={index} style={[styles.snake, { left: segment.x * 10, top: segment.y * 10 }]} />
-        ))}
-        <View style={[styles.food, { left: food.x * 10, top: food.y * 10 }]} />
-      </View>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={() => changeDirection('UP')}>
-          <Text style={styles.buttonText}>Up</Text>
+      <Text style={styles.score}>Score: {score}</Text>
+      {isGameOver ? (
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Puntuacion', { score })}>
+          <Text style={styles.buttonText}>Ver Puntuación</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => changeDirection('DOWN')}>
-          <Text style={styles.buttonText}>Down</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => changeDirection('LEFT')}>
-          <Text style={styles.buttonText}>Left</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => changeDirection('RIGHT')}>
-          <Text style={styles.buttonText}>Right</Text>
-        </TouchableOpacity>
-      </View>
-      {isGameOver && (
-        <TouchableOpacity style={styles.button} onPress={restartGame}>
-          <Text style={styles.buttonText}>Restart</Text>
-        </TouchableOpacity>
+      ) : (
+        <View style={styles.grid}>
+          {Array.from({ length: 20 }).map((_, row) => (
+            <View key={row} style={styles.row}>
+              {Array.from({ length: 20 }).map((_, col) => {
+                const isSnake = snake.some(segment => segment.x === col && segment.y === row);
+                const isFood = food.x === col && food.y === row;
+                return (
+                  <View key={col} style={[styles.cell, isSnake && styles.snake, isFood && styles.food]} />
+                );
+              })}
+            </View>
+          ))}
+        </View>
       )}
     </View>
   );
@@ -151,56 +129,41 @@ export const GameScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'black',
+    alignItems: 'center',
   },
   title: {
-    fontSize: 30,
+    fontSize: 32,
     fontWeight: 'bold',
-    marginBottom: 20,
   },
-  scoreContainer: {
+  score: {
+    fontSize: 24,
+    marginVertical: 20,
+  },
+  grid: {
+    flexDirection: 'column',
+  },
+  row: {
     flexDirection: 'row',
-    marginBottom: 10,
   },
-  scoreText: {
-    color: 'white',
-    fontSize: 18,
-  },
-  board: {
-    width: 200,
-    height: 200,
-    backgroundColor: 'lightgrey',
-    position: 'relative',
+  cell: {
+    width: 20,
+    height: 20,
+    borderWidth: 1,
+    borderColor: '#ddd',
   },
   snake: {
-    width: 10,
-    height: 10,
     backgroundColor: 'green',
-    position: 'absolute',
   },
   food: {
-    width: 10,
-    height: 10,
     backgroundColor: 'red',
-    position: 'absolute',
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    marginTop: 20,
   },
   button: {
-    backgroundColor: '#36BA98',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 20,
-    margin: 5,
+    padding: 10,
+    backgroundColor: 'blue',
+    marginTop: 20,
   },
   buttonText: {
     color: 'white',
-    fontSize: 16,
-    textAlign: 'center',
-    fontWeight: 'bold',
   },
 });

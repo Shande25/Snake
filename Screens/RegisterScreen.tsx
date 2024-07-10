@@ -1,13 +1,26 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ImageBackground, Image } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  ImageBackground,
+  Image,
+} from "react-native";
 import { getDatabase, onValue, ref, set } from "firebase/database";
 import { db } from "../Config/Config";
 
-const backgroundImage = { uri: 'https://e1.pxfuel.com/desktop-wallpaper/510/297/desktop-wallpaper-snake-art.jpg' }; 
-const companyImage = { uri: 'https://i.blogs.es/5c2b53/snake/1366_2000.jpg' };
-const gifImage = { uri: 'https://i.gifer.com/4Snj.gif' };
+const backgroundImage = {
+  uri: "https://e1.pxfuel.com/desktop-wallpaper/510/297/desktop-wallpaper-snake-art.jpg",
+};
+const companyImage = { uri: "https://i.blogs.es/5c2b53/snake/1366_2000.jpg" };
+const gifImage = { uri: "https://i.gifer.com/4Snj.gif" };
 
-export const RegisterScreen = ({ navigation }: any) => {
+export const RegisterScreen: React.FC<{ navigation: any }> = ({
+  navigation,
+}) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
@@ -15,7 +28,9 @@ export const RegisterScreen = ({ navigation }: any) => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setTitleColor((prevColor) => (prevColor === "#36BA98" ? "white" : "#36BA98"));
+      setTitleColor((prevColor) =>
+        prevColor === "#36BA98" ? "white" : "#36BA98"
+      );
     }, 3000);
     return () => clearInterval(interval);
   }, []);
@@ -24,9 +39,9 @@ export const RegisterScreen = ({ navigation }: any) => {
     navigation.navigate("Login");
   };
 
-  function writeUserData(username: string, password: string, email: string) {
-    const db = getDatabase();
-    set(ref(db, `users/` + username), {
+  const writeUserData = (username: string, password: string, email: string) => {
+    const database = getDatabase();
+    set(ref(database, `users/` + username), {
       password: password,
       email: email,
     });
@@ -34,10 +49,10 @@ export const RegisterScreen = ({ navigation }: any) => {
     setUsername("");
     setPassword("");
     setEmail("");
-  }
+  };
 
   useEffect(() => {
-    const starCountRef = ref(db, 'posts/');
+    const starCountRef = ref(db, "posts/");
     onValue(starCountRef, (snapshot) => {
       const data = snapshot.val();
       const dataTemp = Object.keys(data).map((key) => ({ key, ...data[key] }));
@@ -75,11 +90,16 @@ export const RegisterScreen = ({ navigation }: any) => {
           secureTextEntry
           placeholder="Introduce tu contraseña"
         />
-        <TouchableOpacity style={styles.button} onPress={() => writeUserData(username, password, email)}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => writeUserData(username, password, email)}
+        >
           <Text style={styles.buttonText}>Registrarse</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.secondaryButton} onPress={goToLogin}>
-          <Text style={styles.secondaryButtonText}>Ya tengo cuenta. Iniciar sesión</Text>
+          <Text style={styles.secondaryButtonText}>
+            Ya tengo cuenta. Iniciar sesión
+          </Text>
         </TouchableOpacity>
         <View style={styles.gifContainer}>
           <Image source={gifImage} style={styles.gif} />

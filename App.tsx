@@ -1,6 +1,7 @@
-import React from 'react';
-import { MainNavigator } from './navigators/MainNavigator';
+import React from "react";
+import MainNavigator from "./navigators/MainNavigator";
+
 const App = () => {
-  return <MainNavigator/>;
+  return <MainNavigator />;
 };
 export default App;

@@ -1,43 +1,25 @@
-import React from "react";
-import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { RegisterScreen } from "../Screens/RegisterScreen";
-import { WelcomeScreen } from "../Screens/WelcomeScreen";
-import { LoginScreen } from "../Screens/LoginScreen";
+import React from 'react';
+import { createStackNavigator, StackNavigationProp } from '@react-navigation/stack';
+import { NavigationContainer } from '@react-navigation/native';
+import { LoginScreen } from '../Screens/LoginScreen';
+import { RegisterScreen } from '../Screens/RegisterScreen';
+import { GameScreen } from '../Screens/GameScreen';
+import { PuntuacionScreen } from '../Screens/PuntuacionScreen';
+import { RootStackParamList } from '../Screens/types';
 
-import { GameScreen } from "../Screens/GameScreen";
-import { PuntuacionScreen } from "../Screens/PuntuacionScreen";
+const Stack = createStackNavigator<RootStackParamList>();
 
-export type RootStackParamList = {
-  Auth: undefined;
-  WelcomeScreen: undefined;
-  Game: undefined;
-  Puntuacion: { score: number };
+const MainNavigator = () => {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Login">
+        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="Register" component={RegisterScreen} />
+        <Stack.Screen name="Game" component={GameScreen} />
+        <Stack.Screen name="Puntuacion" component={PuntuacionScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
 };
 
-const Tab = createBottomTabNavigator();
-const Stack = createNativeStackNavigator<RootStackParamList>();
-
-const AuthStack = () => (
-  <Tab.Navigator>
-    <Tab.Screen name="Login" component={LoginScreen} />
-    <Tab.Screen name="Register" component={RegisterScreen} />
-  </Tab.Navigator>
-);
-
-export const MainNavigator = () => (
-  <NavigationContainer>
-    <Stack.Navigator>
-      <Stack.Screen
-        name="Auth"
-        component={AuthStack}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen name="WelcomeScreen" component={WelcomeScreen} />
-      <Stack.Screen name="Game" component={GameScreen} />
-      <Stack.Screen name="Puntuacion" component={PuntuacionScreen} />
-    </Stack.Navigator>
-  </NavigationContainer>
-);
-
+export default MainNavigator;
