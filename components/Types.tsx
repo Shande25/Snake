@@ -1,7 +1,9 @@
+// components/Types.ts
 export type RootStackParamList = {
   Login: undefined;
-  Welcome: { username: string }; 
+  Welcome: undefined;
   Register: undefined;
-  Game: { gameId: number }; 
-  Puntuacion: { score: number };
+  Game: undefined;
+  Puntuacion: undefined;
+  Profile: undefined;
 };

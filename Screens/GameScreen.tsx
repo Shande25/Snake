@@ -1,10 +1,10 @@
-// GameScreen.tsx
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { ref, set } from 'firebase/database';
 import { db, auth } from '../Config/Config';
 import { RootStackParamList } from '../components/Types';
+import { GestureHandlerRootView, PanGestureHandler, PanGestureHandlerGestureEvent } from 'react-native-gesture-handler';
 
 const generateFood = () => {
   return { x: Math.floor(Math.random() * 20), y: Math.floor(Math.random() * 20) };
@@ -99,30 +99,51 @@ export const GameScreen: React.FC = () => {
     }
   };
 
+  const handlePanGesture = (event: PanGestureHandlerGestureEvent) => {
+    const { translationX, translationY } = event.nativeEvent;
+    if (Math.abs(translationX) > Math.abs(translationY)) {
+      if (translationX > 0) {
+        setDirection('RIGHT');
+      } else {
+        setDirection('LEFT');
+      }
+    } else {
+      if (translationY > 0) {
+        setDirection('DOWN');
+      } else {
+        setDirection('UP');
+      }
+    }
+  };
+
   return (
-    <View style={styles.container}>
-      <Text style={[styles.title, { color: titleColor }]}>Snake Game</Text>
-      <Text style={styles.score}>Score: {score}</Text>
-      {isGameOver ? (
-        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Puntuacion', { score })}>
-          <Text style={styles.buttonText}>Ver Puntuación</Text>
-        </TouchableOpacity>
-      ) : (
-        <View style={styles.grid}>
-          {Array.from({ length: 20 }).map((_, row) => (
-            <View key={row} style={styles.row}>
-              {Array.from({ length: 20 }).map((_, col) => {
-                const isSnake = snake.some(segment => segment.x === col && segment.y === row);
-                const isFood = food.x === col && food.y === row;
-                return (
-                  <View key={col} style={[styles.cell, isSnake && styles.snake, isFood && styles.food]} />
-                );
-              })}
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <PanGestureHandler onGestureEvent={handlePanGesture}>
+        <View style={styles.container}>
+          <Text style={[styles.title, { color: titleColor }]}>Snake Game</Text>
+          <Text style={styles.score}>Score: {score}</Text>
+          {isGameOver ? (
+            <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Puntuacion', { score })}>
+              <Text style={styles.buttonText}>Ver Puntuación</Text>
+            </TouchableOpacity>
+          ) : (
+            <View style={styles.grid}>
+              {Array.from({ length: 20 }).map((_, row) => (
+                <View key={row} style={styles.row}>
+                  {Array.from({ length: 20 }).map((_, col) => {
+                    const isSnake = snake.some(segment => segment.x === col && segment.y === row);
+                    const isFood = food.x === col && food.y === row;
+                    return (
+                      <View key={col} style={[styles.cell, isSnake && styles.snake, isFood && styles.food]} />
+                    );
+                  })}
+                </View>
+              ))}
             </View>
-          ))}
+          )}
         </View>
-      )}
-    </View>
+      </PanGestureHandler>
+    </GestureHandlerRootView>
   );
 };
 

@@ -63,13 +63,14 @@ export const LoginScreen = ({ navigation }: any) => {
         <TouchableOpacity style={styles.button} onPress={handleLogin}>
           <Text style={styles.buttonText}>Ingresar</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Register')}>
+        <TouchableOpacity style={[styles.button, styles.registerButton]} onPress={() => navigation.navigate('Register')}>
           <Text style={styles.buttonText}>Registrarse</Text>
         </TouchableOpacity>
       </View>
     </ImageBackground>
   );
 };
+
 const styles = StyleSheet.create({
   background: {
     flex: 1,
@@ -106,6 +107,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     paddingHorizontal: 10,
     color: '#fff',
+    borderRadius: 5, // Añadir borde redondeado a los inputs
   },
   button: {
     backgroundColor: '#007bff',
@@ -118,5 +120,11 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontSize: 18,
+    fontWeight: 'bold', // Añadir negrita al texto de los botones
+  },
+  registerButton: {
+    backgroundColor: '#28a745', // Diferente color para el botón de registro
   },
 });
+
+
