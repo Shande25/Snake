@@ -2,6 +2,7 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, initializeAuth, getReactNativePersistence, createUserWithEmailAndPassword } from 'firebase/auth';
 import { getDatabase } from 'firebase/database';
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
+import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCw5wb7WeIbRnELHXO8JKpB2hYkDhoCUUA",
@@ -18,12 +19,13 @@ const app = initializeApp(firebaseConfig);
 
 // Inicializa la autenticación y la base de datos
 const db = getDatabase(app);
+const storage = getStorage(app);
 const auth = initializeAuth(app, {
   persistence: getReactNativePersistence(ReactNativeAsyncStorage)
 });
 
 // Exporta las instancias de la base de datos y autenticación
-export { db, auth };
+export { db, auth,storage };
 
 // Define los tipos para los usuarios
 type UserProfile = {
