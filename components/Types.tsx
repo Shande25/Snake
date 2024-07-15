@@ -4,7 +4,8 @@ export type RootStackParamList = {
   Welcome: undefined;
   Register: undefined;
   Game: undefined;
-  Puntuacion: undefined;
+  Puntuacion: { score: number };
+  // Puntuacion: undefined;
   Profile: undefined;
   Camara : undefined;
 };

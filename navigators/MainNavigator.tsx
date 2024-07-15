@@ -1,19 +1,22 @@
-import React from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
-import { NavigationContainer } from '@react-navigation/native';
+import React from "react";
+import { createStackNavigator } from "@react-navigation/stack";
+import { NavigationContainer } from "@react-navigation/native";
+import WelcomeScreen from "../Screens/WelcomeScreen";
+import { RootStackParamList } from "../components/Types";
+import RegisterScreen from "../Screens/RegisterScreen";
+import LoginScreen from "../Screens/LoginScreen";
+import CamaraScreen from "../Screens/CamaraScreen";
+import GameScreen from "../Screens/GameScreen";
+import { ProfileScreen } from "../Screens/ProfileScreen";
+import PuntuacionScreen from "../Screens/PuntuacionScreen";
 
-import WelcomeScreen from '../Screens/WelcomeScreen';
-import ProfileScreen from '../Screens/ProfileScreen';
-import { RootStackParamList } from '../components/Types';
-import { PuntuacionScreen } from '../Screens/PuntuacionScreen';
-import { RegisterScreen } from '../Screens/RegisterScreen';
-import { GameScreen } from '../Screens/GameScreen';
-import { LoginScreen } from '../Screens/LoginScreen';
-import CamaraScreen from '../Screens/CamaraScreen';
+
+
+
 
 const Stack = createStackNavigator<RootStackParamList>();
 
-const MainNavigator = () => {
+const MainNavigator: React.FC = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Login">

@@ -1,196 +1,160 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ImageBackground, Image, FlatList, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
-import { getDatabase, ref, onValue, push, set, update } from 'firebase/database';
+import { ref, onValue, push, set } from 'firebase/database';
 import { db } from '../Config/Config';
 
 type RootStackParamList = {
   Puntuacion: { score: number };
 };
+
 type PuntuacionScreenRouteProp = RouteProp<RootStackParamList, 'Puntuacion'>;
-type Score = {
+
+interface ScoreData {
+  id: string;
   username: string;
   score: number;
-};
+}
 
-export const PuntuacionScreen: React.FC = () => {
+const PuntuacionScreen: React.FC = () => {
   const route = useRoute<PuntuacionScreenRouteProp>();
-  const { score: currentScore } = route.params;
-  const [highScores, setHighScores] = useState<Score[]>([]);
-  const [username, setUsername] = useState("");
+  const { score } = route.params;
+  const [username, setUsername] = useState('');
+  const [scores, setScores] = useState<ScoreData[]>([]);
 
   useEffect(() => {
-    fetchHighScores();
+    const scoresRef = ref(db, 'scores');
+    const unsubscribe = onValue(scoresRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const scoresArray: ScoreData[] = Object.keys(data).map((key) => ({
+          id: key,
+          username: data[key].username,
+          score: data[key].score,
+        }));
+        setScores(scoresArray.sort((a, b) => b.score - a.score));
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
 
-  const fetchHighScores = () => {
-    const dbRef = ref(db, 'scores/');
-    onValue(dbRef, (snapshot) => {
-      const scores: Score[] = [];
-      snapshot.forEach((childSnapshot) => {
-        const { username, score } = childSnapshot.val();
-        scores.push({ username, score });
-      });
-      scores.sort((a, b) => b.score - a.score);
-      setHighScores(scores.slice(0, 3));
-    });
-  };
-
-  const saveScore = () => {
-    if (username.trim() === "") {
-      alert("Por favor ingrese un nombre de usuario válido.");
+  const handleSaveScore = () => {
+    if (username.trim() === '') {
+      Alert.alert('Error', 'Por favor ingrese un nombre de usuario.', [{ text: 'Aceptar' }]);
       return;
     }
 
-    const dbRef = ref(db, 'scores/');
-    const existingScore = highScores.find(score => score.username === username);
+    const newScoreRef = push(ref(db, 'scores'));
+    set(newScoreRef, {
+      username: username.trim(),
+      score: score,
+    });
 
-    if (existingScore) {
-      // Update existing score if the user already exists
-      update(ref(db, `scores/${existingScore.username}`), {
-        score: currentScore
-      }).then(() => {
-        fetchHighScores();
-        Alert.alert("Puntuación actualizada", "Tu puntaje ha sido actualizado exitosamente.");
-      }).catch((error) => {
-        console.error("Error al actualizar la puntuación: ", error);
-        Alert.alert("Error", "Ocurrió un error al actualizar la puntuación.");
-      });
-    } else {
-      // Save new score if user does not exist
-      push(dbRef, {
-        username: username,
-        score: currentScore
-      }).then(() => {
-        setUsername("");
-        fetchHighScores();
-        Alert.alert("Puntuación guardada", "Tu puntaje ha sido guardado exitosamente.");
-      }).catch((error) => {
-        console.error("Error al guardar la puntuación: ", error);
-        Alert.alert("Error", "Ocurrió un error al guardar la puntuación.");
-      });
-    }
+    setUsername('');
   };
 
   return (
-    <ImageBackground source={{ uri: 'https://e1.pxfuel.com/desktop-wallpaper/510/297/desktop-wallpaper-snake-art.jpg' }} style={styles.backgroundImage}>
-      <View style={styles.container}>
-        <View style={styles.textContainer}>
-          <Text style={styles.title}>Puntuaciones de Jugadores</Text>
-          <Text style={styles.score}>Tu puntuación fue: {currentScore}</Text>
-        </View>
-        <FlatList
-          style={styles.list}
-          data={highScores}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item, index }) => (
-            <View style={styles.scoreItem}>
-              <Text style={styles.scoreItemText}>{index + 1}. {item.username}: {item.score}</Text>
-            </View>
-          )}
-        />
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Ingresa tu nombre de usuario:</Text>
-          <TextInput
-            style={styles.input}
-            value={username}
-            onChangeText={(text) => setUsername(text)}
-            placeholder="Nombre de usuario"
-          />
-          <TouchableOpacity style={styles.button} onPress={saveScore}>
-            <Text style={styles.buttonText}>Guardar Puntuación</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.gifContainer}>
-          <Image source={{ uri: 'https://i.gifer.com/4Snj.gif' }} style={styles.gif} />
-        </View>
-      </View>
-    </ImageBackground>
+    <View style={styles.container}>
+      <Text style={styles.title}>Puntuaciones</Text>
+      <Text style={styles.subtitle}>Tu puntuación: {score}</Text>
+      <FlatList
+        data={scores}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <View style={styles.scoreItem}>
+            <Text style={styles.username}>{item.username}</Text>
+            <Text style={styles.score}>{item.score}</Text>
+          </View>
+        )}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Ingresa tu nombre de usuario"
+        value={username}
+        onChangeText={setUsername}
+        autoCapitalize="words"
+      />
+      <TouchableOpacity style={styles.button} onPress={handleSaveScore}>
+        <Text style={styles.buttonText}>Guardar Puntuación</Text>
+      </TouchableOpacity>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  backgroundImage: {
-    flex: 1,
-    resizeMode: 'cover',
-  },
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: 20,
-  },
-  textContainer: {
-    flex: 1,
-    justifyContent: 'center',
+    backgroundColor: '#f5f5f5',
     alignItems: 'center',
-    marginBottom: 20,
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
-    marginBottom: 20,
-    color: '#36BA98',
+    marginBottom: 15,
+    color: '#2E7D32',
     textAlign: 'center',
+    textShadowColor: '#fff',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 5,
+  },
+  subtitle: {
+    fontSize: 22,
+    marginBottom: 25,
+    color: '#555',
+    textAlign: 'center',
+  },
+  scoreItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+    width: '100%',
+    backgroundColor: '#fff',
+    borderRadius: 5,
+    marginVertical: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  username: {
+    fontSize: 18,
+    color: '#555',
   },
   score: {
     fontSize: 18,
-    marginBottom: 10,
-    color: 'white',
-    textAlign: 'center',
-  },
-  list: {
-    flex: 3,
-    width: '100%',
-  },
-  scoreItem: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-  },
-  scoreItemText: {
-    fontSize: 16,
-    color: 'white',
-  },
-  inputContainer: {
-    marginBottom: 20,
-    alignItems: 'center',
-  },
-  label: {
-    color: 'white',
-    fontSize: 16,
-    marginBottom: 5,
+    fontWeight: 'bold',
+    color: '#36BA98',
   },
   input: {
-    width: '80%',
-    height: 40,
-    borderColor: '#ccc',
+    height: 45,
+    width: '100%',
+    borderColor: '#ddd',
     borderWidth: 1,
-    paddingHorizontal: 10,
-    marginBottom: 10,
     borderRadius: 5,
-    backgroundColor: 'white',
+    paddingHorizontal: 10,
+    marginBottom: 20,
+    backgroundColor: '#fff',
   },
   button: {
-    backgroundColor: '#007BFF',
-    paddingVertical: 15,
-    paddingHorizontal: 30,
+    backgroundColor: '#36BA98',
+    paddingVertical: 12,
     borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    width: '100%',
   },
   buttonText: {
     color: 'white',
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
-  },
-  gifContainer: {
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  gif: {
-    width: 200,
-    height: 200,
   },
 });
 

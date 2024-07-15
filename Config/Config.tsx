@@ -17,15 +17,17 @@ const firebaseConfig = {
 // Inicializa la aplicación de Firebase
 const app = initializeApp(firebaseConfig);
 
-// Inicializa la autenticación y la base de datos
-const db = getDatabase(app);
-const storage = getStorage(app);
+// Inicializa la autenticación con persistencia en React Native
 const auth = initializeAuth(app, {
   persistence: getReactNativePersistence(ReactNativeAsyncStorage)
 });
 
-// Exporta las instancias de la base de datos y autenticación
-export { db, auth,storage };
+// Inicializa la base de datos y el almacenamiento
+const db = getDatabase(app);
+const storage = getStorage(app);
+
+// Exporta las instancias de la base de datos, autenticación y almacenamiento
+export { db, auth, storage };
 
 // Define los tipos para los usuarios
 type UserProfile = {
@@ -56,4 +58,3 @@ const newUser: UserProfile = {
 };
 
 createUser(newUser);
-

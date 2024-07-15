@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ImageBackgr
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { getDatabase, ref, set } from 'firebase/database';
-import { auth } from '../Config/Config'; // Asegúrate de importar auth correctamente desde tu configuración
+import { auth } from '../Config/Config'; 
 
 const backgroundImage = { uri: 'https://e1.pxfuel.com/desktop-wallpaper/510/297/desktop-wallpaper-snake-art.jpg' };
 const companyImage = { uri: 'https://i.blogs.es/5c2b53/snake/1366_2000.jpg' };

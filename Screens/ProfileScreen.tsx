@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
-import { auth, db } from '../Config/Config'; // Asegúrate de ajustar la ruta según la ubicación de tu archivo de configuración de Firebase
+import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity } from 'react-native';
+import { auth } from '../Config/Config'; 
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc, getFirestore } from 'firebase/firestore';
 
@@ -13,7 +13,7 @@ type UserProfile = {
   password: string;
 };
 
-const ProfileScreen = () => {
+export const ProfileScreen = () => {
   const [userData, setUserData] = useState<UserProfile>({ nickname: '', age: '', email: '', password: '' });
   const [isEditing, setIsEditing] = useState(false);
 
@@ -46,27 +46,27 @@ const ProfileScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text>Nickname:</Text>
+      <Text style={styles.label}>Nickname:</Text>
       <TextInput
         style={styles.input}
         value={userData.nickname}
         editable={isEditing}
         onChangeText={(text) => setUserData({ ...userData, nickname: text })}
       />
-      <Text>Age:</Text>
+      <Text style={styles.label}>Age:</Text>
       <TextInput
         style={styles.input}
         value={userData.age}
         editable={isEditing}
         onChangeText={(text) => setUserData({ ...userData, age: text })}
       />
-      <Text>Email:</Text>
+      <Text style={styles.label}>Email:</Text>
       <TextInput
         style={styles.input}
         value={userData.email}
         editable={false}
       />
-      <Text>Password:</Text>
+      <Text style={styles.label}>Password:</Text>
       <TextInput
         style={styles.input}
         value={userData.password}
@@ -74,11 +74,12 @@ const ProfileScreen = () => {
         secureTextEntry={true}
         onChangeText={(text) => setUserData({ ...userData, password: text })}
       />
-      {isEditing ? (
-        <Button title="Save" onPress={handleSave} />
-      ) : (
-        <Button title="Edit" onPress={handleEdit} />
-      )}
+      <TouchableOpacity 
+        style={[styles.button, isEditing ? styles.saveButton : styles.editButton]} 
+        onPress={isEditing ? handleSave : handleEdit}
+      >
+        <Text style={styles.buttonText}>{isEditing ? 'Save' : 'Edit'}</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -87,12 +88,33 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    backgroundColor: '#f8f8f8',
+  },
+  label: {
+    marginBottom: 5,
+    fontWeight: 'bold',
   },
   input: {
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
     marginBottom: 20,
+    padding: 10,
+    borderRadius: 5,
+    backgroundColor: '#fff',
+  },
+  button: {
+    padding: 15,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  editButton: {
+    backgroundColor: '#007BFF',
+  },
+  saveButton: {
+    backgroundColor: '#28a745',
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });
-
-export default ProfileScreen;

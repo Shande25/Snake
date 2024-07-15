@@ -10,7 +10,6 @@ const generateFood = (snake: { x: number; y: number }[]) => {
   let foodX = Math.floor(Math.random() * 20);
   let foodY = Math.floor(Math.random() * 20);
 
-  // Ensure the food is generated within the white cells
   while (snake.some(segment => segment.x === foodX && segment.y === foodY)) {
     foodX = Math.floor(Math.random() * 20);
     foodY = Math.floor(Math.random() * 20);
@@ -21,7 +20,7 @@ const generateFood = (snake: { x: number; y: number }[]) => {
 
 type GameScreenNavigationProp = NavigationProp<RootStackParamList, 'Game'>;
 
-export const GameScreen: React.FC = () => {
+const GameScreen: React.FC = () => {
   const navigation = useNavigation<GameScreenNavigationProp>();
   const [snake, setSnake] = useState([{ x: 0, y: 0 }]);
   const [direction, setDirection] = useState('RIGHT');
@@ -46,7 +45,7 @@ export const GameScreen: React.FC = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setTitleColor((prevColor) => (prevColor === '#36BA98' ? 'white' : '#36BA98'));
+      setTitleColor(prevColor => (prevColor === '#36BA98' ? 'white' : '#36BA98'));
     }, 3000);
     return () => clearInterval(interval);
   }, []);
@@ -77,8 +76,8 @@ export const GameScreen: React.FC = () => {
       return;
     }
 
-    for (let i = 0; i < newSnake.length; i++) {
-      if (newSnake[i].x === head.x && newSnake[i].y === head.y) {
+    for (let segment of newSnake) {
+      if (segment.x === head.x && segment.y === head.y) {
         setIsGameOver(true);
         return;
       }
@@ -111,17 +110,9 @@ export const GameScreen: React.FC = () => {
   const handlePanGesture = (event: PanGestureHandlerGestureEvent) => {
     const { translationX, translationY } = event.nativeEvent;
     if (Math.abs(translationX) > Math.abs(translationY)) {
-      if (translationX > 0) {
-        setDirection('RIGHT');
-      } else {
-        setDirection('LEFT');
-      }
+      setDirection(translationX > 0 ? 'RIGHT' : 'LEFT');
     } else {
-      if (translationY > 0) {
-        setDirection('DOWN');
-      } else {
-        setDirection('UP');
-      }
+      setDirection(translationY > 0 ? 'DOWN' : 'UP');
     }
   };
 
@@ -179,6 +170,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: 'bold',
+    marginBottom: 20,
   },
   score: {
     fontSize: 24,
@@ -218,6 +210,8 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 
