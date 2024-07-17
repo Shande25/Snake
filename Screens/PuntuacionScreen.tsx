@@ -21,6 +21,7 @@ const PuntuacionScreen: React.FC = () => {
   const { score } = route.params;
   const [username, setUsername] = useState('');
   const [scores, setScores] = useState<ScoreData[]>([]);
+  const [titleColor, setTitleColor] = useState('#fff');
 
   useEffect(() => {
     const scoresRef = ref(db, 'scores');
@@ -37,6 +38,13 @@ const PuntuacionScreen: React.FC = () => {
     });
 
     return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTitleColor(prevColor => (prevColor === '#fff' ? '#36BA98' : '#fff'));
+    }, 3000);
+    return () => clearInterval(interval);
   }, []);
 
   const handleSaveScore = () => {
@@ -56,7 +64,7 @@ const PuntuacionScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Puntuaciones</Text>
+      <Text style={[styles.title, { color: titleColor }]}>Puntuaciones</Text>
       <Text style={styles.subtitle}>Tu puntuación: {score}</Text>
       <FlatList
         data={scores}
@@ -71,6 +79,7 @@ const PuntuacionScreen: React.FC = () => {
       <TextInput
         style={styles.input}
         placeholder="Ingresa tu nombre de usuario"
+        placeholderTextColor="#aaa"
         value={username}
         onChangeText={setUsername}
         autoCapitalize="words"
@@ -86,23 +95,22 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#000',
     alignItems: 'center',
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 15,
-    color: '#2E7D32',
     textAlign: 'center',
-    textShadowColor: '#fff',
+    textShadowColor: '#2E7D32',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 5,
   },
   subtitle: {
     fontSize: 22,
     marginBottom: 25,
-    color: '#555',
+    color: '#fff',
     textAlign: 'center',
   },
   scoreItem: {
@@ -110,9 +118,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    borderBottomColor: '#444',
     width: '100%',
-    backgroundColor: '#fff',
+    backgroundColor: '#111',
     borderRadius: 5,
     marginVertical: 5,
     shadowColor: '#000',
@@ -122,7 +130,7 @@ const styles = StyleSheet.create({
   },
   username: {
     fontSize: 18,
-    color: '#555',
+    color: '#fff',
   },
   score: {
     fontSize: 18,
@@ -132,12 +140,13 @@ const styles = StyleSheet.create({
   input: {
     height: 45,
     width: '100%',
-    borderColor: '#ddd',
+    borderColor: '#444',
     borderWidth: 1,
     borderRadius: 5,
     paddingHorizontal: 10,
     marginBottom: 20,
-    backgroundColor: '#fff',
+    backgroundColor: '#222',
+    color: '#fff',
   },
   button: {
     backgroundColor: '#36BA98',

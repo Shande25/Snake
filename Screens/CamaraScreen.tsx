@@ -1,7 +1,7 @@
 import { TouchableOpacity, Image, StyleSheet, Text, View, Alert } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import * as ImagePicker from 'expo-image-picker';
-import {  ref, uploadBytes } from "firebase/storage";
+import { ref, uploadBytes } from "firebase/storage";
 import { storage } from '../Config/Config';
 
 export default function GaleriaScreen() {
@@ -89,10 +89,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 16,
-    backgroundColor: '#f8f8f8',
+    backgroundColor: '#000',
   },
   button: {
-    backgroundColor: '#007BFF',
+    backgroundColor: '#36BA98', // Verde especificado
     padding: 15,
     borderRadius: 5,
     marginVertical: 10,
@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   uploadButton: {
-    backgroundColor: 'green',
+    backgroundColor: '#36BA98',
   },
   buttonText: {
     color: '#fff',
