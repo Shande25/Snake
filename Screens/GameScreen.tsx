@@ -6,7 +6,7 @@ import { db, auth } from '../Config/Config';
 import { RootStackParamList } from '../components/Types';
 import { GestureHandlerRootView, PanGestureHandler, PanGestureHandlerGestureEvent } from 'react-native-gesture-handler';
 
-const generateFood = (snake: { x: number; y: number }[]) => {
+const generateFood = (snake) => {
   let foodX = Math.floor(Math.random() * 20);
   let foodY = Math.floor(Math.random() * 20);
 
@@ -125,11 +125,13 @@ const GameScreen: React.FC = () => {
   };
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={styles.container}>
       <PanGestureHandler onGestureEvent={handlePanGesture}>
-        <View style={styles.container}>
+        <View style={styles.gameContainer}>
           <Text style={[styles.title, { color: titleColor }]}>Snake Game</Text>
-          <Text style={styles.score}>Score: {score}</Text>
+          <View style={styles.scoreContainer}>
+            <Text style={styles.scoreText}>Score: {score}</Text>
+          </View>
           {isGameOver ? (
             <View style={styles.buttonContainer}>
               <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Puntuacion', { score })}>
@@ -144,10 +146,11 @@ const GameScreen: React.FC = () => {
               {Array.from({ length: 20 }).map((_, row) => (
                 <View key={row} style={styles.row}>
                   {Array.from({ length: 20 }).map((_, col) => {
-                    const isSnake = snake.some(segment => segment.x === col && segment.y === row);
+                    const isSnakeHead = snake[0].x === col && snake[0].y === row;
+                    const isSnakeBody = snake.slice(1).some(segment => segment.x === col && segment.y === row);
                     const isFood = food.x === col && food.y === row;
                     return (
-                      <View key={col} style={[styles.cell, isSnake && styles.snake, isFood && styles.food]} />
+                      <View key={`${row}-${col}`} style={[styles.cell, isSnakeHead && styles.snakeHead, isSnakeBody && styles.snakeBody, isFood && styles.food]} />
                     );
                   })}
                 </View>
@@ -163,18 +166,26 @@ const GameScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: 'black',
+  },
+  gameContainer: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'black',
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
     marginBottom: 20,
   },
-  score: {
+  scoreContainer: {
+    marginBottom: 20,
+    padding: 10,
+    backgroundColor: '#222',
+    borderRadius: 10,
+  },
+  scoreText: {
     fontSize: 24,
-    marginVertical: 20,
     color: 'white',
   },
   grid: {
@@ -187,25 +198,27 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderWidth: 1,
-    borderColor: '#ddd',
-    backgroundColor: 'white',
+    borderColor: '#333',
+    backgroundColor: '#555',
   },
-  snake: {
+  snakeHead: {
     backgroundColor: 'green',
+  },
+  snakeBody: {
+    backgroundColor: 'darkgreen',
   },
   food: {
     backgroundColor: 'red',
   },
   buttonContainer: {
     marginTop: 20,
+    alignItems: 'center',
   },
   button: {
-    padding: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 30,
     backgroundColor: '#36BA98',
     marginTop: 10,
-    width: 200,
-    alignItems: 'center',
-    justifyContent: 'center',
     borderRadius: 10,
   },
   buttonText: {

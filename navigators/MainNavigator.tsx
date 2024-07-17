@@ -5,10 +5,10 @@ import WelcomeScreen from "../Screens/WelcomeScreen";
 import { RootStackParamList } from "../components/Types";
 import RegisterScreen from "../Screens/RegisterScreen";
 import LoginScreen from "../Screens/LoginScreen";
-import CamaraScreen from "../Screens/CamaraScreen";
 import GameScreen from "../Screens/GameScreen";
-import { ProfileScreen } from "../Screens/ProfileScreen";
 import PuntuacionScreen from "../Screens/PuntuacionScreen";
+import { ProfileScreen } from "../Screens/PerfilScreen";
+
 
 
 
@@ -25,8 +25,8 @@ const MainNavigator: React.FC = () => {
         <Stack.Screen name="Register" component={RegisterScreen} />
         <Stack.Screen name="Game" component={GameScreen} />
         <Stack.Screen name="Puntuacion" component={PuntuacionScreen} />
-        <Stack.Screen name="Profile" component={ProfileScreen} />
-        <Stack.Screen name="Camara" component={CamaraScreen} />
+        <Stack.Screen name="Perfil" component={ProfileScreen} />
+
       </Stack.Navigator>
     </NavigationContainer>
   );

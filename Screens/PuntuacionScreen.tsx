@@ -16,12 +16,13 @@ interface ScoreData {
   score: number;
 }
 
-const PuntuacionScreen: React.FC = () => {
+export const PuntuacionScreen: React.FC = () => {
   const route = useRoute<PuntuacionScreenRouteProp>();
   const { score } = route.params;
   const [username, setUsername] = useState('');
   const [scores, setScores] = useState<ScoreData[]>([]);
   const [titleColor, setTitleColor] = useState('#fff');
+  const [scoreSaved, setScoreSaved] = useState(false); 
 
   useEffect(() => {
     const scoresRef = ref(db, 'scores');
@@ -42,12 +43,24 @@ const PuntuacionScreen: React.FC = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setTitleColor(prevColor => (prevColor === '#fff' ? '#36BA98' : '#fff'));
+      setTitleColor((prevColor) => (prevColor === '#fff' ? '#36BA98' : '#fff'));
     }, 3000);
     return () => clearInterval(interval);
   }, []);
 
   const handleSaveScore = () => {
+    // Verificar si el puntaje ya ha sido guardado
+    if (scoreSaved) {
+      Alert.alert('Error', 'Ya has guardado tu nombre con este puntaje.', [{ text: 'Aceptar' }]);
+      return;
+    }
+
+    // Verificar si hay un puntaje válido para guardar
+    if (score === 0) {
+      Alert.alert('Error', 'Primero juega para obtener un puntaje válido.', [{ text: 'Aceptar' }]);
+      return;
+    }
+
     if (username.trim() === '') {
       Alert.alert('Error', 'Por favor ingrese un nombre de usuario.', [{ text: 'Aceptar' }]);
       return;
@@ -60,6 +73,13 @@ const PuntuacionScreen: React.FC = () => {
     });
 
     setUsername('');
+    setScoreSaved(true); // Marcar que el puntaje ha sido guardado
+  };
+
+  // Lógica para reiniciar el estado de scoreSaved y otros estados cuando el usuario inicia un nuevo juego
+  const handleNewGame = () => {
+    setScoreSaved(false); // Reiniciar para permitir un nuevo guardado
+    // Reiniciar otros estados relacionados con iniciar un nuevo juego...
   };
 
   return (
@@ -83,13 +103,18 @@ const PuntuacionScreen: React.FC = () => {
         value={username}
         onChangeText={setUsername}
         autoCapitalize="words"
+        editable={!scoreSaved} // Deshabilitar la edición si el puntaje ya ha sido guardado
       />
-      <TouchableOpacity style={styles.button} onPress={handleSaveScore}>
+      <TouchableOpacity style={styles.button} onPress={handleSaveScore} disabled={scoreSaved}>
         <Text style={styles.buttonText}>Guardar Puntuación</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={[styles.button, { marginTop: 10 }]} onPress={handleNewGame}>
+        <Text style={styles.buttonText}>Nuevo Juego</Text>
       </TouchableOpacity>
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {

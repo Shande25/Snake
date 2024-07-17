@@ -39,7 +39,7 @@ export const WelcomeScreen = ({ navigation }: any) => {
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.button, styles.secondaryButton]}
-            onPress={() => navigation.navigate("Camara")}
+            onPress={() => navigation.navigate("Perfil")}
           >
             <Text style={[styles.buttonText, styles.secondaryButtonText]}>
               Mi Perfil

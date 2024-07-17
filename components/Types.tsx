@@ -6,6 +6,5 @@ export type RootStackParamList = {
   Game: undefined;
   Puntuacion: { score: number };
   // Puntuacion: undefined;
-  Profile: undefined;
-  Camara : undefined;
+  Perfil: undefined;
 };

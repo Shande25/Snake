@@ -13,6 +13,8 @@ export const RegisterScreen = ({ navigation }: any) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
+  const [name, setName] = useState('');
+  const [age, setAge] = useState('');
   const [titleColor, setTitleColor] = useState('#36BA98');
 
   useEffect(() => {
@@ -36,12 +38,16 @@ export const RegisterScreen = ({ navigation }: any) => {
       await set(ref(database, `users/${user.uid}`), {
         username: username,
         email: email,
+        name: name,
+        age: age,
       });
 
       Alert.alert('Mensaje', 'Información guardada correctamente');
       setUsername('');
       setPassword('');
       setEmail('');
+      setName('');
+      setAge('');
     } catch (error) {
       console.error('Error al registrar usuario:', error);
       Alert.alert('Error', 'Hubo un error al registrar el usuario');
@@ -64,6 +70,14 @@ export const RegisterScreen = ({ navigation }: any) => {
             placeholder="Introduce tu nombre de usuario"
             placeholderTextColor="rgba(255, 255, 255, 0.7)"
           />
+          <Text style={styles.label}>Nombre:</Text>
+          <TextInput
+            style={styles.input}
+            value={name}
+            onChangeText={(text) => setName(text)}
+            placeholder="Introduce tu nombre"
+            placeholderTextColor="rgba(255, 255, 255, 0.7)"
+          />
           <Text style={styles.label}>Email:</Text>
           <TextInput
             style={styles.input}
@@ -81,6 +95,15 @@ export const RegisterScreen = ({ navigation }: any) => {
             onChangeText={(text) => setPassword(text)}
             secureTextEntry
             placeholder="Introduce tu contraseña"
+            placeholderTextColor="rgba(255, 255, 255, 0.7)"
+          />
+          <Text style={styles.label}>Edad:</Text>
+          <TextInput
+            style={styles.input}
+            value={age}
+            onChangeText={(text) => setAge(text)}
+            keyboardType="numeric"
+            placeholder="Introduce tu edad"
             placeholderTextColor="rgba(255, 255, 255, 0.7)"
           />
           <TouchableOpacity style={styles.button} onPress={handleRegistration}>
