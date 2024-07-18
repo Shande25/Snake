@@ -67,10 +67,10 @@ export const LoginScreen = ({ navigation }: any) => {
       <KeyboardAwareScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.container}>
           <Image source={companyImage} style={styles.companyImage} />
-          <Text style={[styles.title, { color: titleColor }]}>Iniciar Sesión</Text>
-          {error ? <Text style={styles.error}>{error}</Text> : null}
+          <Text style={[styles.title, { color: titleColor, fontFamily: 'Roboto', fontSize: 24, fontWeight: 'bold' }]}>Iniciar Sesión</Text>
+          {error ? <Text style={[styles.error, { fontFamily: 'Roboto', fontSize: 16 }]}>{error}</Text> : null}
           <TextInput
-            style={styles.input}
+            style={[styles.input, { fontFamily: 'Roboto', fontSize: 16 }]}
             value={email}
             onChangeText={setEmail}
             placeholder="Email"
@@ -79,7 +79,7 @@ export const LoginScreen = ({ navigation }: any) => {
             placeholderTextColor="#ccc"
           />
           <TextInput
-            style={styles.input}
+            style={[styles.input, { fontFamily: 'Roboto', fontSize: 16 }]}
             value={password}
             onChangeText={setPassword}
             placeholder="Contraseña"
@@ -87,10 +87,10 @@ export const LoginScreen = ({ navigation }: any) => {
             placeholderTextColor="#ccc"
           />
           <TouchableOpacity style={styles.button} onPress={handleLogin}>
-            <Text style={styles.buttonText}>Ingresar</Text>
+            <Text style={[styles.buttonText, { fontFamily: 'Roboto', fontSize: 18 }]}>Ingresar</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Register')}>
-            <Text style={styles.buttonText}>Registrarse</Text>
+            <Text style={[styles.buttonText, { fontFamily: 'Roboto', fontSize: 18 }]}>Registrarse</Text>
           </TouchableOpacity>
           <View style={styles.gifContainer}>
             <Image source={gifImage} style={styles.gif} />

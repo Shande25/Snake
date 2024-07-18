@@ -53,7 +53,7 @@ const ProfileScreen = () => {
         quality: 1,
       });
 
-      if (!result.canceled) {
+      if (!result.cancelled) {
         setImageUploading(true);
         const imageUrl = await uploadImage(result.assets[0].uri);
         setProfileImage(imageUrl);
@@ -146,7 +146,7 @@ const ProfileScreen = () => {
       <Text style={styles.profileTitle}>Perfil del usuario activo</Text>
       <View style={styles.editButtonContainer}>
         {isEditing ? (
-          <Button title="Guardar" onPress={handleSaveChanges} />
+          <Button title="Guardar" onPress={handleSaveChanges} color="green" />
         ) : (
           <Button title="Editar" onPress={handleEditProfile} />
         )}
@@ -236,12 +236,12 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   editButtonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    alignSelf: 'center',
     marginBottom: 20,
   },
   categorySection: {
     marginBottom: 20,
+    paddingHorizontal: 20,
   },
   categoryTitle: {
     fontSize: 18,
@@ -251,22 +251,26 @@ const styles = StyleSheet.create({
   },
   infoSection: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 10,
   },
   infoLabel: {
+    width: 120,
     fontSize: 16,
     color: '#CCCCCC',
   },
   infoValue: {
+    flex: 1,
     fontSize: 16,
     color: '#FFFFFF',
   },
   editableField: {
+    flex: 1,
+    height: 40,
+    fontSize: 16,
+    color: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: '#CCCCCC',
-    color: '#FFFFFF',
   },
   input: {
     flex: 1,

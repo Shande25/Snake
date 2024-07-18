@@ -12,7 +12,6 @@ export const WelcomeScreen = ({ navigation }: any) => {
     return () => clearInterval(colorInterval);
   }, []);
 
-  
   const gifUrl = "https://66.media.tumblr.com/9356a5343569692547be79f4fe460829/tumblr_mit6meq11R1rfjowdo1_500.gif";
 
   return (
@@ -48,6 +47,7 @@ export const WelcomeScreen = ({ navigation }: any) => {
         </View>
         {/* GIF desde URL */}
         <Image source={{ uri: gifUrl }} style={styles.gif} />
+        {/* Botón de retroceso */}
       </View>
     </ImageBackground>
   );
@@ -117,6 +117,21 @@ const styles = StyleSheet.create({
     width: "100%", 
     height: 85, 
     resizeMode: "contain", 
+  },
+  backButton: {
+    backgroundColor: "#888",
+    width: 250,
+    paddingVertical: 15,
+    borderRadius: 25,
+    marginTop: 20,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  backButtonText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#fff",
+    textAlign: "center",
   },
 });
 

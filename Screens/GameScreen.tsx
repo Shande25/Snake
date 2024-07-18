@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions } from 'react-native';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions, BackHandler } from 'react-native';
+import { useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native';
 import { ref, set } from 'firebase/database';
 import { db, auth } from '../Config/Config';
 import { GestureHandlerRootView, PanGestureHandler } from 'react-native-gesture-handler';
 import { Audio } from 'expo-av';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 const { width, height } = Dimensions.get('window');
 const CELL_SIZE = Math.floor(Math.min(width, height) / 20);
@@ -19,6 +20,7 @@ const GameScreen: React.FC = () => {
   const [titleColor, setTitleColor] = useState('#36BA98');
   const [isPaused, setIsPaused] = useState(false);
   const [backgroundSound, setBackgroundSound] = useState<Audio.Sound | null>(null);
+  const [gameOverSound, setGameOverSound] = useState<Audio.Sound | null>(null);
 
   useEffect(() => {
     const backgroundMusic = async () => {
@@ -33,35 +35,86 @@ const GameScreen: React.FC = () => {
       }
     };
 
+    const gameOverMusic = async () => {
+      try {
+        const { sound } = await Audio.Sound.createAsync(require('../assets/game-over-arcade-6435.mp3'));
+        setGameOverSound(sound);
+      } catch (error) {
+        console.error('Error loading game over music:', error);
+      }
+    };
+
     backgroundMusic();
+    gameOverMusic();
 
     return () => {
       if (backgroundSound) {
         backgroundSound.unloadAsync();
       }
+      if (gameOverSound) {
+        gameOverSound.unloadAsync();
+      }
     };
   }, []);
 
-  useEffect(() => {
-    if (isGameOver || isPaused) {
-      stopBackgroundMusic();
-    } else {
-      playBackgroundMusic();
-    }
-  }, [isGameOver, isPaused]);
+  useFocusEffect(
+    useCallback(() => {
+      const playBackgroundMusic = async () => {
+        try {
+          if (backgroundSound && !isGameOver && !isPaused) {
+            await backgroundSound.playAsync();
+          }
+        } catch (error) {
+          console.error('Error playing background music:', error);
+        }
+      };
+
+      const playGameOverSound = async () => {
+        try {
+          if (gameOverSound) {
+            await gameOverSound.playAsync();
+          }
+        } catch (error) {
+          console.error('Error playing game over sound:', error);
+        }
+      };
+
+      const stopBackgroundMusic = async () => {
+        try {
+          if (backgroundSound) {
+            await backgroundSound.stopAsync();
+          }
+        } catch (error) {
+          console.error('Error stopping background music:', error);
+        }
+      };
+
+      if (isGameOver) {
+        playGameOverSound();
+        stopBackgroundMusic();
+      } else {
+        playBackgroundMusic();
+      }
+
+      return () => {
+        if (backgroundSound) {
+          stopBackgroundMusic();
+        }
+      };
+    }, [backgroundSound, gameOverSound, isGameOver, isPaused])
+  );
 
   useEffect(() => {
     if (isGameOver) {
       saveScoreToDatabase(score);
-      playGameOverSound();
       navigation.navigate('Puntuacion', { score });
     }
   }, [isGameOver, score, navigation]);
 
   useEffect(() => {
-    if (isGameOver || isPaused) return;
-
-    const interval = setInterval(moveSnake, 200);
+    const interval = setInterval(() => {
+      moveSnake();
+    }, 200);
     return () => clearInterval(interval);
   }, [snake, direction, isGameOver, isPaused]);
 
@@ -72,7 +125,6 @@ const GameScreen: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  
   const playSound = async () => {
     try {
       const { sound } = await Audio.Sound.createAsync(require('../assets/eating-sound-effect-36186.mp3'));
@@ -80,81 +132,6 @@ const GameScreen: React.FC = () => {
     } catch (error) {
       console.error('Error playing sound:', error);
     }
-  };
-
-  const playGameOverSound = async () => {
-    try {
-      const { sound } = await Audio.Sound.createAsync(require('../assets/game-over-arcade-6435.mp3'));
-      await sound.playAsync();
-    } catch (error) {
-      console.error('Error playing game over sound:', error);
-    }
-  };
-
-  const playBackgroundMusic = async () => {
-    try {
-      if (backgroundSound) {
-        await backgroundSound.playAsync();
-      }
-    } catch (error) {
-      console.error('Error playing background music:', error);
-    }
-  };
-
-  const stopBackgroundMusic = async () => {
-    try {
-      if (backgroundSound) {
-        await backgroundSound.stopAsync();
-      }
-    } catch (error) {
-      console.error('Error stopping background music:', error);
-    }
-  };
-
-  const moveSnake = () => {
-    let newSnake = [...snake];
-    let head = { ...newSnake[0] };
-
-    switch (direction) {
-      case 'RIGHT':
-        head.x += 1;
-        break;
-      case 'LEFT':
-        head.x -= 1;
-        break;
-      case 'UP':
-        head.y -= 1;
-        break;
-      case 'DOWN':
-        head.y += 1;
-        break;
-      default:
-        break;
-    }
-
-    if (head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20) {
-      setIsGameOver(true);
-      return;
-    }
-
-    for (let segment of newSnake) {
-      if (segment.x === head.x && segment.y === head.y) {
-        setIsGameOver(true);
-        return;
-      }
-    }
-
-    newSnake.unshift(head);
-
-    if (head.x === food.x && head.y === food.y) {
-      setFood(generateFood(newSnake));
-      setScore(score + 1);
-      playSound();
-    } else {
-      newSnake.pop();
-    }
-
-    setSnake(newSnake);
   };
 
   const saveScoreToDatabase = (score: number) => {
@@ -190,13 +167,60 @@ const GameScreen: React.FC = () => {
     }
   };
 
+  const moveSnake = () => {
+    if (isPaused || isGameOver) return;
+
+    let newSnake = [...snake];
+    let head = { ...newSnake[0] };
+
+    switch (direction) {
+      case 'RIGHT':
+        head.x += 1;
+        break;
+      case 'LEFT':
+        head.x -= 1;
+        break;
+      case 'UP':
+        head.y -= 1;
+        break;
+      case 'DOWN':
+        head.y += 1;
+        break;
+      default:
+        break;
+    }
+
+    if (head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20) {
+      setIsGameOver(true);
+      return;
+    }
+
+    for (let segment of newSnake.slice(1)) {
+      if (segment.x === head.x && segment.y === head.y) {
+        setIsGameOver(true);
+        return;
+      }
+    }
+
+    newSnake.unshift(head);
+
+    if (head.x === food.x && head.y === food.y) {
+      setFood(generateFood(newSnake));
+      setScore(score + 1);
+      playSound();
+    } else {
+      newSnake.pop();
+    }
+
+    setSnake(newSnake);
+  };
+
   const restartGame = () => {
     setSnake([{ x: 10, y: 10 }]);
     setDirection('RIGHT');
     setFood(generateFood([{ x: 10, y: 10 }]));
     setIsGameOver(false);
     setScore(0);
-    playBackgroundMusic();
   };
 
   const togglePause = () => {
@@ -204,6 +228,7 @@ const GameScreen: React.FC = () => {
   };
 
   return (
+  
     <GestureHandlerRootView style={styles.container}>
       <PanGestureHandler onGestureEvent={handlePanGesture}>
         <View style={styles.gameContainer}>
@@ -249,7 +274,8 @@ const GameScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'lightgray',
+    backgroundColor: 'black',
+    
   },
   gameContainer: {
     flex: 1,
@@ -261,8 +287,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    width: '90%',
-    marginVertical: 10,
+    width: '100%',
+    padding: 20,
+    backgroundColor: '#36BA98',
+  },
+  buttonText: {
+    fontSize: 24,
+    color: 'white',
   },
   scoreText: {
     fontSize: 24,
@@ -270,29 +301,34 @@ const styles = StyleSheet.create({
   },
   grid: {
     flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#36BA98',
+    marginTop: 10,
+    backgroundColor: 'black',
   },
   row: {
     flexDirection: 'row',
   },
   cell: {
     borderWidth: 1,
-    borderColor: '#333',
-    backgroundColor: '#555',
+    borderColor: 'white',
+    backgroundColor: '#F2F2F2',
+    width: CELL_SIZE,
+    height: CELL_SIZE,
   },
   snakeHead: {
-    backgroundColor: 'lightgreen',
+    backgroundColor: 'green',
   },
   snakeBody: {
     backgroundColor: 'green',
   },
   food: {
-    position: 'absolute',
-    width: CELL_SIZE - 4,
-    height: CELL_SIZE - 4,
-  },
-  buttonText: {
-    fontSize: 24,
-    color: 'white',
+    flex: 1,
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
   },
 });
 

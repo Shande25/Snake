@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 5,
     width: '100%',
-    marginBottom: 10, // Añadir margen entre los botones
+    marginBottom: 10, 
   },
   buttonText: {
     color: 'white',

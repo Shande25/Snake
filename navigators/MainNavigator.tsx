@@ -1,20 +1,20 @@
-import React from "react";
-import { createStackNavigator } from "@react-navigation/stack";
-import { NavigationContainer } from "@react-navigation/native";
-import WelcomeScreen from "../Screens/WelcomeScreen";
-import { RootStackParamList } from "../components/Types";
-import LoginScreen from "../Screens/LoginScreen";
-import GameScreen from "../Screens/GameScreen";
-import PuntuacionScreen from "../Screens/PuntuacionScreen";
-import ProfileScreen from "../Screens/PerfilScreen";
-import { RegisterScreen } from "../Screens/RegisterScreen";
+import React from 'react';
+import { createStackNavigator } from '@react-navigation/stack';
+import { NavigationContainer } from '@react-navigation/native';
+import WelcomeScreen from '../Screens/WelcomeScreen';
+import { RootStackParamList } from '../components/Types';
+import LoginScreen from '../Screens/LoginScreen';
+import GameScreen from '../Screens/GameScreen';
+import PuntuacionScreen from '../Screens/PuntuacionScreen';
+import ProfileScreen from '../Screens/PerfilScreen';
+import { RegisterScreen } from '../Screens/RegisterScreen';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
 const MainNavigator: React.FC = () => {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Login">
+      <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Welcome" component={WelcomeScreen} />
         <Stack.Screen name="Register" component={RegisterScreen} />
