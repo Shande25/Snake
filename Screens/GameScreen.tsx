@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { ref, set } from 'firebase/database';
 import { db, auth } from '../Config/Config';
 import { RootStackParamList } from '../components/Types';
-import { GestureHandlerRootView, PanGestureHandler, PanGestureHandlerGestureEvent } from 'react-native-gesture-handler';
+import { GestureHandlerRootView, PanGestureHandler } from 'react-native-gesture-handler';
 
-const generateFood = (snake: { x: number, y: number }[]): { x: number, y: number } => {
+
+// Obtener las dimensiones de la pantalla
+const { width, height } = Dimensions.get('window');
+const CELL_SIZE = Math.floor(Math.min(width, height) / 20); // Tamaño de cada celda
+
+const generateFood = (snake: any[]) => {
   let foodX = Math.floor(Math.random() * 20);
   let foodY = Math.floor(Math.random() * 20);
 
@@ -22,12 +27,13 @@ type GameScreenNavigationProp = NavigationProp<RootStackParamList, 'Game'>;
 
 const GameScreen: React.FC = () => {
   const navigation = useNavigation<GameScreenNavigationProp>();
-  const [snake, setSnake] = useState([{ x: 0, y: 0 }]);
+  const [snake, setSnake] = useState([{ x: 10, y: 10 }]);
   const [direction, setDirection] = useState('RIGHT');
   const [food, setFood] = useState(generateFood(snake));
   const [isGameOver, setIsGameOver] = useState(false);
   const [score, setScore] = useState(0);
   const [titleColor, setTitleColor] = useState('#36BA98');
+  const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
     if (isGameOver) {
@@ -37,11 +43,11 @@ const GameScreen: React.FC = () => {
   }, [isGameOver, score, navigation]);
 
   useEffect(() => {
-    if (isGameOver) return;
+    if (isGameOver || isPaused) return;
 
     const interval = setInterval(moveSnake, 200);
     return () => clearInterval(interval);
-  }, [snake, direction, isGameOver]);
+  }, [snake, direction, isGameOver, isPaused]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -107,7 +113,7 @@ const GameScreen: React.FC = () => {
     }
   };
 
-  const handlePanGesture = (event: PanGestureHandlerGestureEvent) => {
+  const handlePanGesture = (event: { nativeEvent: { translationX: any; translationY: any; }; }) => {
     const { translationX, translationY } = event.nativeEvent;
     if (Math.abs(translationX) > Math.abs(translationY)) {
       setDirection(translationX > 0 ? 'RIGHT' : 'LEFT');
@@ -117,46 +123,52 @@ const GameScreen: React.FC = () => {
   };
 
   const restartGame = () => {
-    setSnake([{ x: 0, y: 0 }]);
+    setSnake([{ x: 10, y: 10 }]);
     setDirection('RIGHT');
-    setFood(generateFood([{ x: 0, y: 0 }]));
+    setFood(generateFood([{ x: 10, y: 10 }]));
     setIsGameOver(false);
     setScore(0);
+  };
+
+  const togglePause = () => {
+    setIsPaused(!isPaused);
   };
 
   return (
     <GestureHandlerRootView style={styles.container}>
       <PanGestureHandler onGestureEvent={handlePanGesture}>
         <View style={styles.gameContainer}>
-          <Text style={[styles.title, { color: titleColor }]}>Snake Game</Text>
-          <View style={styles.scoreContainer}>
-            <Text style={styles.scoreText}>Score: {score}</Text>
+          <View style={styles.header}>
+            <TouchableOpacity onPress={restartGame}>
+              <Text style={styles.buttonText}>↻</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={togglePause}>
+              <Text style={styles.buttonText}>{isPaused ? '▶' : '⏸'}</Text>
+            </TouchableOpacity>
+            <Text style={styles.scoreText}>{score}</Text>
           </View>
-          {isGameOver ? (
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Puntuacion', { score })}>
-                <Text style={styles.buttonText}>Ver Puntuación</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.button} onPress={restartGame}>
-                <Text style={styles.buttonText}>Volver a Jugar</Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <View style={styles.grid}>
-              {Array.from({ length: 20 }).map((_, row) => (
-                <View key={row} style={styles.row}>
-                  {Array.from({ length: 20 }).map((_, col) => {
-                    const isSnakeHead = snake[0].x === col && snake[0].y === row;
-                    const isSnakeBody = snake.slice(1).some(segment => segment.x === col && segment.y === row);
-                    const isFood = food.x === col && food.y === row;
-                    return (
-                      <View key={`${row}-${col}`} style={[styles.cell, isSnakeHead && styles.snakeHead, isSnakeBody && styles.snakeBody, isFood && styles.food]} />
-                    );
-                  })}
-                </View>
-              ))}
-            </View>
-          )}
+          <View style={styles.grid}>
+            {Array.from({ length: 20 }).map((_, row) => (
+              <View key={row} style={styles.row}>
+                {Array.from({ length: 20 }).map((_, col) => {
+                  const isSnakeHead = snake[0].x === col && snake[0].y === row;
+                  const isSnakeBody = snake.slice(1).some(segment => segment.x === col && segment.y === row);
+                  const isFood = food.x === col && food.y === row;
+                  return (
+                    <View key={`${row}-${col}`} style={[
+                      styles.cell,
+                      isSnakeHead && styles.snakeHead,
+                      isSnakeBody && styles.snakeBody
+                    ]}>
+                      {isFood && <Image source={require('../assets/image/apple.png')} style={styles.food} />}
+                    </View>
+                    
+                  );
+                  
+                })}
+              </View>
+            ))}
+          </View>
         </View>
       </PanGestureHandler>
     </GestureHandlerRootView>
@@ -166,23 +178,20 @@ const GameScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'black',
+    backgroundColor: 'lightgray', // Color de fondo claro
   },
   gameContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    width: '100%', // Ocupar toda la pantalla
   },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
-  scoreContainer: {
-    marginBottom: 20,
-    padding: 10,
-    backgroundColor: '#222',
-    borderRadius: 10,
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '90%',
+    marginVertical: 10,
   },
   scoreText: {
     fontSize: 24,
@@ -195,36 +204,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   cell: {
-    width: 20,
-    height: 20,
+    width: CELL_SIZE,
+    height: CELL_SIZE,
     borderWidth: 1,
     borderColor: '#333',
-    backgroundColor: '#555',
+    backgroundColor: '#555', // Color de fondo para las celdas
   },
   snakeHead: {
-    backgroundColor: 'green',
+    backgroundColor: 'lightgreen', // Color de la cabeza de la serpiente
   },
   snakeBody: {
-    backgroundColor: 'darkgreen',
+    backgroundColor: 'green', // Color del cuerpo de la serpiente
   },
   food: {
-    backgroundColor: 'red',
-  },
-  buttonContainer: {
-    marginTop: 20,
-    alignItems: 'center',
-  },
-  button: {
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    backgroundColor: '#36BA98',
-    marginTop: 10,
-    borderRadius: 10,
+    width: CELL_SIZE - 4, // Ajustar tamaño de la comida según tamaño de celda
+    height: CELL_SIZE - 4,
   },
   buttonText: {
+    fontSize: 24,
     color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
   },
 });
 
