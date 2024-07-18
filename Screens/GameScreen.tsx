@@ -6,7 +6,7 @@ import { db, auth } from '../Config/Config';
 import { RootStackParamList } from '../components/Types';
 import { GestureHandlerRootView, PanGestureHandler, PanGestureHandlerGestureEvent } from 'react-native-gesture-handler';
 
-const generateFood = (snake) => {
+const generateFood = (snake: { x: number, y: number }[]): { x: number, y: number } => {
   let foodX = Math.floor(Math.random() * 20);
   let foodY = Math.floor(Math.random() * 20);
 

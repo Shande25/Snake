@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  FlatList,
-  Image,
-  ActivityIndicator,
-} from "react-native";
+import { StyleSheet,Text,View,FlatList, Image,ActivityIndicator,} from "react-native";
 import { getStorage, ref, listAll, getDownloadURL } from "firebase/storage";
 
 export default function CapturasScreen() {

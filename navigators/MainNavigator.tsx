@@ -3,16 +3,11 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from "@react-navigation/native";
 import WelcomeScreen from "../Screens/WelcomeScreen";
 import { RootStackParamList } from "../components/Types";
-import RegisterScreen from "../Screens/RegisterScreen";
 import LoginScreen from "../Screens/LoginScreen";
 import GameScreen from "../Screens/GameScreen";
 import PuntuacionScreen from "../Screens/PuntuacionScreen";
-import { ProfileScreen } from "../Screens/PerfilScreen";
-
-
-
-
-
+import ProfileScreen from "../Screens/PerfilScreen";
+import { RegisterScreen } from "../Screens/RegisterScreen";
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -26,7 +21,6 @@ const MainNavigator: React.FC = () => {
         <Stack.Screen name="Game" component={GameScreen} />
         <Stack.Screen name="Puntuacion" component={PuntuacionScreen} />
         <Stack.Screen name="Perfil" component={ProfileScreen} />
-
       </Stack.Navigator>
     </NavigationContainer>
   );

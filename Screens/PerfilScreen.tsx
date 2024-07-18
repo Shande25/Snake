@@ -4,12 +4,13 @@ import { auth, db, storage } from '../Config/Config';
 import { onValue, ref, update } from 'firebase/database';
 import * as ImagePicker from 'expo-image-picker';
 import Constants from 'expo-constants';
+import { getDownloadURL, ref as storageRef, uploadBytes } from 'firebase/storage';
 
-export const ProfileScreen = () => {
+const ProfileScreen = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [age, setAge] = useState('');
-  const [profileImage, setProfileImage] = useState(null);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
   const [imageUploading, setImageUploading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
@@ -52,9 +53,9 @@ export const ProfileScreen = () => {
         quality: 1,
       });
 
-      if (!result.cancelled) {
+      if (!result.canceled) {
         setImageUploading(true);
-        const imageUrl = await uploadImage(result.uri);
+        const imageUrl = await uploadImage(result.assets[0].uri);
         setProfileImage(imageUrl);
         await saveProfileImageToFirebase(imageUrl);
         setImageUploading(false);
@@ -65,22 +66,36 @@ export const ProfileScreen = () => {
     }
   };
 
-  const uploadImage = async (uri) => {
-    const response = await fetch(uri);
-    const blob = await response.blob();
+  const uploadImage = async (uri: string) => {
+    try {
+      const response = await fetch(uri);
+      const blob = await response.blob();
 
-    const userId = auth.currentUser.uid;
-    const imageName = `profile_images/${userId}`;
-    const storageRef = storage.ref().child(imageName);
+      const userId = auth.currentUser?.uid;
+      if (!userId) {
+        throw new Error('No user is currently signed in.');
+      }
+      
+      const imageName = `profile_images/${userId}`;
+      const imageRef = storageRef(storage, imageName);
 
-    await storageRef.put(blob);
-    const url = await storageRef.getDownloadURL();
-    return url;
+      await uploadBytes(imageRef, blob);
+      const url = await getDownloadURL(imageRef);
+      return url;
+    } catch (error) {
+      console.error('Error al subir la imagen:', error);
+      Alert.alert('Error', 'Hubo un error al subir la imagen.');
+      setImageUploading(false);
+      return null;
+    }
   };
 
-  const saveProfileImageToFirebase = async (imageUrl) => {
+  const saveProfileImageToFirebase = async (imageUrl: string | null) => {
     try {
-      const userId = auth.currentUser.uid;
+      const userId = auth.currentUser?.uid;
+      if (!userId) {
+        throw new Error('No user is currently signed in.');
+      }
       const userRef = ref(db, `users/${userId}`);
       await update(userRef, { profileImage: imageUrl });
     } catch (error) {
@@ -95,7 +110,10 @@ export const ProfileScreen = () => {
 
   const handleSaveChanges = async () => {
     try {
-      const userId = auth.currentUser.uid;
+      const userId = auth.currentUser?.uid;
+      if (!userId) {
+        throw new Error('No user is currently signed in.');
+      }
       const userRef = ref(db, `users/${userId}`);
       await update(userRef, {
         username,
@@ -191,71 +209,68 @@ const styles = StyleSheet.create({
     width: 160,
     height: 160,
     borderRadius: 80,
-    backgroundColor: '#CCCCCC',
+    backgroundColor: '#DDDDDD',
     justifyContent: 'center',
     alignItems: 'center',
-    overflow: 'hidden',
+    alignSelf: 'center',
     marginBottom: 20,
   },
   profileImage: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+  },
+  uploadingText: {
+    fontSize: 16,
+    color: '#000000',
+  },
+  uploadText: {
+    fontSize: 16,
+    color: '#888888',
   },
   profileTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 10,
     textAlign: 'center',
+    marginBottom: 20,
   },
   editButtonContainer: {
-    alignSelf: 'flex-end',
-    marginBottom: 10,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 20,
   },
   categorySection: {
     marginBottom: 20,
   },
   categoryTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
-    color: '#333',
   },
   infoSection: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 10,
-    paddingHorizontal: 20,
   },
   infoLabel: {
-    fontWeight: 'bold',
-    marginRight: 10,
-    width: 150,
+    fontSize: 16,
+    color: '#666666',
   },
   infoValue: {
     fontSize: 16,
+    color: '#333333',
+  },
+  editableField: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#CCCCCC',
   },
   input: {
     flex: 1,
     height: 40,
-    borderColor: '#CCCCCC',
-    borderWidth: 1,
+    fontSize: 16,
+    color: '#333333',
     paddingHorizontal: 10,
-    marginBottom: 10,
-    fontSize: 16,
-  },
-  editableField: {
-    backgroundColor: '#F0F0F0',
-  },
-  uploadingText: {
-    fontSize: 16,
-    color: '#333',
-    textAlign: 'center',
-  },
-  uploadText: {
-    fontSize: 16,
-    color: '#333',
-    textAlign: 'center',
   },
 });
 

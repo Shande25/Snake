@@ -12,7 +12,7 @@ export const WelcomeScreen = ({ navigation }: any) => {
     return () => clearInterval(colorInterval);
   }, []);
 
-  // URL del GIF
+  
   const gifUrl = "https://66.media.tumblr.com/9356a5343569692547be79f4fe460829/tumblr_mit6meq11R1rfjowdo1_500.gif";
 
   return (

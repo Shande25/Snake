@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { ref, onValue, push, set } from 'firebase/database';
 import { db } from '../Config/Config';
@@ -23,6 +23,7 @@ export const PuntuacionScreen: React.FC = () => {
   const [scores, setScores] = useState<ScoreData[]>([]);
   const [titleColor, setTitleColor] = useState('#fff');
   const [scoreSaved, setScoreSaved] = useState(false); 
+  const [saving, setSaving] = useState(false); // Nuevo estado de guardado pendiente
 
   useEffect(() => {
     const scoresRef = ref(db, 'scores');
@@ -66,17 +67,19 @@ export const PuntuacionScreen: React.FC = () => {
       return;
     }
 
+    setSaving(true); // Activar el estado de guardado pendiente
+
     const newScoreRef = push(ref(db, 'scores'));
     set(newScoreRef, {
       username: username.trim(),
       score: score,
+    }).then(() => {
+      setSaving(false); // Desactivar el estado de guardado pendiente
+      setScoreSaved(true); // Marcar que el puntaje ha sido guardado
+      setUsername('');
     });
-
-    setUsername('');
-    setScoreSaved(true); // Marcar que el puntaje ha sido guardado
   };
 
-  // Lógica para reiniciar el estado de scoreSaved y otros estados cuando el usuario inicia un nuevo juego
   const handleNewGame = () => {
     setScoreSaved(false); // Reiniciar para permitir un nuevo guardado
     // Reiniciar otros estados relacionados con iniciar un nuevo juego...
@@ -103,18 +106,18 @@ export const PuntuacionScreen: React.FC = () => {
         value={username}
         onChangeText={setUsername}
         autoCapitalize="words"
-        editable={!scoreSaved} // Deshabilitar la edición si el puntaje ya ha sido guardado
+        editable={!scoreSaved && !saving} // Deshabilitar la edición si el puntaje ya ha sido guardado o está en proceso de guardado
       />
-      <TouchableOpacity style={styles.button} onPress={handleSaveScore} disabled={scoreSaved}>
-        <Text style={styles.buttonText}>Guardar Puntuación</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={[styles.button, { marginTop: 10 }]} onPress={handleNewGame}>
-        <Text style={styles.buttonText}>Nuevo Juego</Text>
-      </TouchableOpacity>
-    </View>
+      {saving ? (
+        <ActivityIndicator size="large" color="#36BA98" /> // Indicador de carga
+      ) : (
+        <TouchableOpacity style={styles.button} onPress={handleSaveScore} disabled={scoreSaved || saving}>
+          <Text style={styles.buttonText}>Guardar Puntuación</Text>
+        </TouchableOpacity>
+      )}
+         </View>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {
@@ -184,6 +187,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 5,
     width: '100%',
+    marginBottom: 10, // Añadir margen entre los botones
   },
   buttonText: {
     color: 'white',

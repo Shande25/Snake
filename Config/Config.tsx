@@ -1,8 +1,9 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, initializeAuth, getReactNativePersistence, createUserWithEmailAndPassword } from 'firebase/auth';
 import { getDatabase } from 'firebase/database';
+import { createUserWithEmailAndPassword, fetchSignInMethodsForEmail, getAuth, getReactNativePersistence, initializeAuth } from 'firebase/auth';
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 import { getStorage } from 'firebase/storage';
+import { Alert } from 'react-native';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCw5wb7WeIbRnELHXO8JKpB2hYkDhoCUUA",
@@ -39,10 +40,20 @@ type UserProfile = {
 
 // Ejemplo de cómo usar los tipos definidos
 const createUser = (user: UserProfile) => {
-  createUserWithEmailAndPassword(auth, user.email, user.password)
+  fetchSignInMethodsForEmail(auth, user.email)
+    .then((signInMethods) => {
+      if (signInMethods.length > 0) {
+        console.error('Error: El correo electrónico ya está en uso.');
+        Alert.alert('Error', 'El correo electrónico ya está en uso.');
+      } else {
+        return createUserWithEmailAndPassword(auth, user.email, user.password);
+      }
+    })
     .then((userCredential) => {
-      const newUser = userCredential.user;
-      console.log('User created:', newUser);
+      if (userCredential) {
+        const newUser = userCredential.user;
+        console.log('User created:', newUser);
+      }
     })
     .catch((error) => {
       console.error('Error creating user:', error);
