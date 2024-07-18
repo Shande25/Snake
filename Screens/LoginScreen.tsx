@@ -17,10 +17,28 @@ export const LoginScreen = ({ navigation }: any) => {
   const handleLogin = () => {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
+        Alert.alert('Acceso Correcto', 'Has iniciado sesión correctamente.');
         navigation.navigate('Welcome');
       })
       .catch((error) => {
-        setError(error.message);
+        let errorMessage;
+        switch (error.code) {
+          case 'auth/invalid-email':
+            errorMessage = 'El formato del correo electrónico no es válido.';
+            break;
+          case 'auth/user-disabled':
+            errorMessage = 'Este usuario ha sido deshabilitado.';
+            break;
+          case 'auth/user-not-found':
+            errorMessage = 'Usuario no encontrado.';
+            break;
+          case 'auth/wrong-password':
+            errorMessage = 'Contraseña incorrecta.';
+            break;
+          default:
+            errorMessage = 'Ocurrió un error. Por favor, intenta de nuevo.';
+        }
+        setError(errorMessage);
       });
   };
 
@@ -97,7 +115,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    paddingBottom: 120, 
+    paddingBottom: 120, // Adjust as needed
   },
   companyImage: {
     width: 100,

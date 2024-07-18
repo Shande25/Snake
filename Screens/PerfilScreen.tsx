@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 20,
     paddingTop: Constants.statusBarHeight + 20,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#000000',
   },
   profileImageContainer: {
     width: 160,
@@ -222,17 +222,18 @@ const styles = StyleSheet.create({
   },
   uploadingText: {
     fontSize: 16,
-    color: '#000000',
+    color: '#FFFFFF',
   },
   uploadText: {
     fontSize: 16,
-    color: '#888888',
+    color: '#FFFFFF',
   },
   profileTitle: {
     fontSize: 24,
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 20,
+    color: '#FFFFFF',
   },
   editButtonContainer: {
     flexDirection: 'row',
@@ -246,6 +247,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
+    color: '#FFFFFF',
   },
   infoSection: {
     flexDirection: 'row',
@@ -255,21 +257,22 @@ const styles = StyleSheet.create({
   },
   infoLabel: {
     fontSize: 16,
-    color: '#666666',
+    color: '#CCCCCC',
   },
   infoValue: {
     fontSize: 16,
-    color: '#333333',
+    color: '#FFFFFF',
   },
   editableField: {
     borderBottomWidth: 1,
     borderBottomColor: '#CCCCCC',
+    color: '#FFFFFF',
   },
   input: {
     flex: 1,
     height: 40,
     fontSize: 16,
-    color: '#333333',
+    color: '#FFFFFF',
     paddingHorizontal: 10,
   },
 });

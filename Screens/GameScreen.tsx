@@ -3,41 +3,57 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions } from 'rea
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { ref, set } from 'firebase/database';
 import { db, auth } from '../Config/Config';
-import { RootStackParamList } from '../components/Types';
 import { GestureHandlerRootView, PanGestureHandler } from 'react-native-gesture-handler';
+import { Audio } from 'expo-av';
 
-
-// Obtener las dimensiones de la pantalla
 const { width, height } = Dimensions.get('window');
-const CELL_SIZE = Math.floor(Math.min(width, height) / 20); // Tamaño de cada celda
-
-const generateFood = (snake: any[]) => {
-  let foodX = Math.floor(Math.random() * 20);
-  let foodY = Math.floor(Math.random() * 20);
-
-  while (snake.some(segment => segment.x === foodX && segment.y === foodY)) {
-    foodX = Math.floor(Math.random() * 20);
-    foodY = Math.floor(Math.random() * 20);
-  }
-
-  return { x: foodX, y: foodY };
-};
-
-type GameScreenNavigationProp = NavigationProp<RootStackParamList, 'Game'>;
+const CELL_SIZE = Math.floor(Math.min(width, height) / 20);
 
 const GameScreen: React.FC = () => {
-  const navigation = useNavigation<GameScreenNavigationProp>();
+  const navigation = useNavigation<NavigationProp<RootStackParamList, 'Game'>>();
   const [snake, setSnake] = useState([{ x: 10, y: 10 }]);
   const [direction, setDirection] = useState('RIGHT');
-  const [food, setFood] = useState(generateFood(snake));
+  const [food, setFood] = useState({ x: 15, y: 15 });
   const [isGameOver, setIsGameOver] = useState(false);
   const [score, setScore] = useState(0);
   const [titleColor, setTitleColor] = useState('#36BA98');
   const [isPaused, setIsPaused] = useState(false);
+  const [backgroundSound, setBackgroundSound] = useState<Audio.Sound | null>(null);
+
+  useEffect(() => {
+    const backgroundMusic = async () => {
+      try {
+        const { sound } = await Audio.Sound.createAsync(
+          require('../assets/snake-moon-134886.mp3'),
+          { shouldPlay: true, isLooping: true }
+        );
+        setBackgroundSound(sound);
+      } catch (error) {
+        console.error('Error loading background music:', error);
+      }
+    };
+
+    backgroundMusic();
+
+    return () => {
+      if (backgroundSound) {
+        backgroundSound.unloadAsync();
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isGameOver || isPaused) {
+      stopBackgroundMusic();
+    } else {
+      playBackgroundMusic();
+    }
+  }, [isGameOver, isPaused]);
 
   useEffect(() => {
     if (isGameOver) {
       saveScoreToDatabase(score);
+      playGameOverSound();
       navigation.navigate('Puntuacion', { score });
     }
   }, [isGameOver, score, navigation]);
@@ -55,6 +71,45 @@ const GameScreen: React.FC = () => {
     }, 3000);
     return () => clearInterval(interval);
   }, []);
+
+  
+  const playSound = async () => {
+    try {
+      const { sound } = await Audio.Sound.createAsync(require('../assets/eating-sound-effect-36186.mp3'));
+      await sound.playAsync();
+    } catch (error) {
+      console.error('Error playing sound:', error);
+    }
+  };
+
+  const playGameOverSound = async () => {
+    try {
+      const { sound } = await Audio.Sound.createAsync(require('../assets/game-over-arcade-6435.mp3'));
+      await sound.playAsync();
+    } catch (error) {
+      console.error('Error playing game over sound:', error);
+    }
+  };
+
+  const playBackgroundMusic = async () => {
+    try {
+      if (backgroundSound) {
+        await backgroundSound.playAsync();
+      }
+    } catch (error) {
+      console.error('Error playing background music:', error);
+    }
+  };
+
+  const stopBackgroundMusic = async () => {
+    try {
+      if (backgroundSound) {
+        await backgroundSound.stopAsync();
+      }
+    } catch (error) {
+      console.error('Error stopping background music:', error);
+    }
+  };
 
   const moveSnake = () => {
     let newSnake = [...snake];
@@ -94,6 +149,7 @@ const GameScreen: React.FC = () => {
     if (head.x === food.x && head.y === food.y) {
       setFood(generateFood(newSnake));
       setScore(score + 1);
+      playSound();
     } else {
       newSnake.pop();
     }
@@ -113,6 +169,18 @@ const GameScreen: React.FC = () => {
     }
   };
 
+  const generateFood = (snake: any[]) => {
+    let foodX = Math.floor(Math.random() * 20);
+    let foodY = Math.floor(Math.random() * 20);
+
+    while (snake.some(segment => segment.x === foodX && segment.y === foodY)) {
+      foodX = Math.floor(Math.random() * 20);
+      foodY = Math.floor(Math.random() * 20);
+    }
+
+    return { x: foodX, y: foodY };
+  };
+
   const handlePanGesture = (event: { nativeEvent: { translationX: any; translationY: any; }; }) => {
     const { translationX, translationY } = event.nativeEvent;
     if (Math.abs(translationX) > Math.abs(translationY)) {
@@ -128,6 +196,7 @@ const GameScreen: React.FC = () => {
     setFood(generateFood([{ x: 10, y: 10 }]));
     setIsGameOver(false);
     setScore(0);
+    playBackgroundMusic();
   };
 
   const togglePause = () => {
@@ -155,16 +224,18 @@ const GameScreen: React.FC = () => {
                   const isSnakeBody = snake.slice(1).some(segment => segment.x === col && segment.y === row);
                   const isFood = food.x === col && food.y === row;
                   return (
-                    <View key={`${row}-${col}`} style={[
-                      styles.cell,
-                      isSnakeHead && styles.snakeHead,
-                      isSnakeBody && styles.snakeBody
-                    ]}>
+                    <View
+                      key={`${row}-${col}`}
+                      style={[
+                        styles.cell,
+                        isSnakeHead && styles.snakeHead,
+                        isSnakeBody && styles.snakeBody,
+                        { width: CELL_SIZE - 2, height: CELL_SIZE - 2 },
+                      ]}
+                    >
                       {isFood && <Image source={require('../assets/image/apple.png')} style={styles.food} />}
                     </View>
-                    
                   );
-                  
                 })}
               </View>
             ))}
@@ -178,13 +249,13 @@ const GameScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'lightgray', // Color de fondo claro
+    backgroundColor: 'lightgray',
   },
   gameContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    width: '100%', // Ocupar toda la pantalla
+    width: '100%',
   },
   header: {
     flexDirection: 'row',
@@ -204,20 +275,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   cell: {
-    width: CELL_SIZE,
-    height: CELL_SIZE,
     borderWidth: 1,
     borderColor: '#333',
-    backgroundColor: '#555', // Color de fondo para las celdas
+    backgroundColor: '#555',
   },
   snakeHead: {
-    backgroundColor: 'lightgreen', // Color de la cabeza de la serpiente
+    backgroundColor: 'lightgreen',
   },
   snakeBody: {
-    backgroundColor: 'green', // Color del cuerpo de la serpiente
+    backgroundColor: 'green',
   },
   food: {
-    width: CELL_SIZE - 4, // Ajustar tamaño de la comida según tamaño de celda
+    position: 'absolute',
+    width: CELL_SIZE - 4,
     height: CELL_SIZE - 4,
   },
   buttonText: {
