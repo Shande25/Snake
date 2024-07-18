@@ -24,6 +24,7 @@ export const PuntuacionScreen: React.FC = () => {
   const [titleColor, setTitleColor] = useState('#fff');
   const [scoreSaved, setScoreSaved] = useState(false); 
   const [saving, setSaving] = useState(false); // Nuevo estado de guardado pendiente
+  const [showScores, setShowScores] = useState(false); // Estado para mostrar las puntuaciones
 
   useEffect(() => {
     const scoresRef = ref(db, 'scores');
@@ -77,11 +78,13 @@ export const PuntuacionScreen: React.FC = () => {
       setSaving(false); // Desactivar el estado de guardado pendiente
       setScoreSaved(true); // Marcar que el puntaje ha sido guardado
       setUsername('');
+      setShowScores(true); // Mostrar las puntuaciones después de guardar el puntaje
     });
   };
 
   const handleNewGame = () => {
     setScoreSaved(false); // Reiniciar para permitir un nuevo guardado
+    setShowScores(false); // Ocultar las puntuaciones al iniciar un nuevo juego
     // Reiniciar otros estados relacionados con iniciar un nuevo juego...
   };
 
@@ -89,16 +92,20 @@ export const PuntuacionScreen: React.FC = () => {
     <View style={styles.container}>
       <Text style={[styles.title, { color: titleColor }]}>Puntuaciones</Text>
       <Text style={styles.subtitle}>Tu puntuación: {score}</Text>
-      <FlatList
-        data={scores}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.scoreItem}>
-            <Text style={styles.username}>{item.username}</Text>
-            <Text style={styles.score}>{item.score}</Text>
-          </View>
-        )}
-      />
+
+      {showScores && (
+        <FlatList
+          data={scores}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <View style={styles.scoreItem}>
+              <Text style={styles.username}>{item.username}</Text>
+              <Text style={styles.score}>{item.score}</Text>
+            </View>
+          )}
+        />
+      )}
+
       <TextInput
         style={styles.input}
         placeholder="Ingresa tu nombre de usuario"
@@ -108,6 +115,7 @@ export const PuntuacionScreen: React.FC = () => {
         autoCapitalize="words"
         editable={!scoreSaved && !saving} // Deshabilitar la edición si el puntaje ya ha sido guardado o está en proceso de guardado
       />
+
       {saving ? (
         <ActivityIndicator size="large" color="#36BA98" /> // Indicador de carga
       ) : (
@@ -115,7 +123,7 @@ export const PuntuacionScreen: React.FC = () => {
           <Text style={styles.buttonText}>Guardar Puntuación</Text>
         </TouchableOpacity>
       )}
-         </View>
+    </View>
   );
 };
 

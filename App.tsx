@@ -1,14 +1,12 @@
 import React from 'react';
 import { View, Image, StyleSheet } from 'react-native';
+import MainNavigator from './navigators/MainNavigator';
 
 const App = () => {
   return (
-    <View style={styles.container}>
-      <Image
-        source={require('./assets/image/juego.jpg')}
-        style={styles.image}
-      />
-    </View>
+    
+     <MainNavigator/>
+     
   );
 };
 

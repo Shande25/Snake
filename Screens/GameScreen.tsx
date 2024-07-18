@@ -6,6 +6,7 @@ import { db, auth } from '../Config/Config';
 import { GestureHandlerRootView, PanGestureHandler } from 'react-native-gesture-handler';
 import { Audio } from 'expo-av';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
+import { RootStackParamList } from '../components/Types';
 
 const { width, height } = Dimensions.get('window');
 const CELL_SIZE = Math.floor(Math.min(width, height) / 20);

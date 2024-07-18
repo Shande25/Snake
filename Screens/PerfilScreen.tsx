@@ -53,7 +53,7 @@ const ProfileScreen = () => {
         quality: 1,
       });
 
-      if (!result.cancelled) {
+      if (!result.canceled) {
         setImageUploading(true);
         const imageUrl = await uploadImage(result.assets[0].uri);
         setProfileImage(imageUrl);
