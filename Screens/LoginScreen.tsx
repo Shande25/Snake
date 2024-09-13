@@ -6,7 +6,7 @@ import { auth } from '../Config/Config';
 
 const backgroundImage = { uri: 'https://e1.pxfuel.com/desktop-wallpaper/510/297/desktop-wallpaper-snake-art.jpg' };
 const companyImage = { uri: 'https://i.blogs.es/5c2b53/snake/1366_2000.jpg' };
-const gifImage = { uri: 'https://i.pinimg.com/originals/e5/93/ab/e593ab0589d5f1b389e4dfbcce2bce20.gif' };
+const gifImage = require('../assets/image/lutipng.png');
 
 export const LoginScreen = ({ navigation }: any) => {
   const [email, setEmail] = useState('');
